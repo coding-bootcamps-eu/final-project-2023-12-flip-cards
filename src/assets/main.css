@@ -1,3 +1,20 @@
 * {
   box-sizing: border-box;
 }
+:root {
+  --vibrant-purple: #6a1cc3;
+  --white: #ffffff;
+  --very-dark-gray: #111827;
+  --charcoal-gray: #303030;
+  --light-gray: #e5e7eb;
+  --peach-light-orange: #fdba74;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--light-gray); /* Optional: Default background */
+}
