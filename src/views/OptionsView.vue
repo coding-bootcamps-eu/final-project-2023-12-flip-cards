@@ -1,10 +1,7 @@
 <template>
-  <div>
-    <HeaderComponent title="Home Page" msg="Header component" />
-    <h2>Home</h2>
-    <MainComponent msg="Main component" />
-    <FooterComponent msg="Footer component" />
-  </div>
+  <HeaderComponent msg="Header component" />
+  <MainComponent msg="Main component" />
+  <FooterComponent msg="Footer component" />
 </template>
 
 <script>
