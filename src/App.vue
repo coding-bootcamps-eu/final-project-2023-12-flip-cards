@@ -1,15 +1,20 @@
-<script setup>
-import TheWelcome from './components/boilerplate/TheWelcome.vue'
-</script>
-
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+    <LogoComponent />
   </header>
 
   <main></main>
   <router-view />
 </template>
+
+<script>
+import LogoComponent from './components/LogoComponent.vue'
+export default {
+  components: {
+    LogoComponent
+  }
+}
+</script>
 
 <style scoped>
 header {
