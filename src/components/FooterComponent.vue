@@ -1,23 +1,16 @@
 <template>
-  <div class="hello">
+  <div class="bye">
     <h1>{{ msg }}</h1>
-    <p>
-      Here should be the footer:
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener"
-        >vue-cli documentation</a
-      >.
-    </p>
     <h3>contact information</h3>
   </div>
 </template>
 
 <script>
 export default {
-  name: "HelloWorld",
   props: {
-    msg: String,
-  },
-};
+    msg: String
+  }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
