@@ -1,23 +1,17 @@
 <template>
-  <Logo msg="Logo component" />
-  <Card msg="Card component" />
+  <h1>This is the main component</h1>
 </template>
 
 <script>
-import Logo from "../components/LogoComponent.vue";
-import Card from "../components/CardComponent.vue";
 export default {
-  components: {
-    Logo,
-    Card,
-  },
+  components: {},
   data() {
     return {
-      newCard: "",
-      cards: [],
-    };
-  },
-};
+      newCard: '',
+      cards: []
+    }
+  }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

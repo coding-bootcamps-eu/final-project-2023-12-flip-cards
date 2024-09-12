@@ -1,17 +1,22 @@
 <template>
   <header>
     <LogoComponent />
+    <div id="app">
+      <router-view />
+      <!-- Hier wird der Inhalt der Route angezeigt -->
+    </div>
   </header>
 
   <main></main>
-  <router-view />
 </template>
 
 <script>
 import LogoComponent from './components/LogoComponent.vue'
+import HeaderComponent from './components/HeaderComponent.vue' // Header-Komponente importieren
 export default {
   components: {
-    LogoComponent
+    LogoComponent,
+    HeaderComponent
   }
 }
 </script>

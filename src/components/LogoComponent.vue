@@ -1,4 +1,5 @@
 <template>
+  <h1>{{ msg }}</h1>
   <body>
     <div class="triangle-container">
       <div class="rounded-wurst top"></div>
@@ -15,10 +16,10 @@ export default {
   props: {
     msg: {
       type: String,
-      required: true,
-    },
-  },
-};
+      required: true
+    }
+  }
+}
 </script>
 
 <style scoped>
