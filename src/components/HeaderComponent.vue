@@ -1,11 +1,17 @@
 <template>
+  <LogoComponent />
   <header class="app-header">
     <h1>{{ title }}</h1>
   </header>
 </template>
 
 <script>
+import LogoComponent from '@/components/LogoComponent.vue'
+
 export default {
+  components: {
+    LogoComponent
+  },
   props: {
     title: {
       type: String,

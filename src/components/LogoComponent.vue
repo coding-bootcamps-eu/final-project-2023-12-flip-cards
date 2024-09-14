@@ -1,13 +1,14 @@
 <template>
-  <body>
-    <div class="triangle-container">
+  <h1>{{ msg }}</h1>
+  <div class="logo-container">
+    <div class="triangle-container" id="logo">
       <div class="rounded-wurst top"></div>
       <div class="rounded-wurst left"></div>
       <div class="rounded-wurst right"></div>
       <div class="small-triangle"></div>
       <!-- Kleines Dreieck -->
     </div>
-  </body>
+  </div>
 </template>
 
 <script>
@@ -22,12 +23,13 @@ export default {
 </script>
 
 <style scoped>
-body {
+.logo-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
+  flex-direction: column; /* Elemente untereinander anordnen */
+  justify-content: center; /* Vertikale Zentrierung */
+  align-items: center; /* Horizontale Zentrierung */
+  height: 20vh;
+  background-color: #f0f0f0; /* Hintergrundfarbe */
 }
 
 .triangle-container {
