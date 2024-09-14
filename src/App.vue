@@ -1,33 +1,23 @@
 <template>
-  <header>
-    <LogoComponent />
-    <div id="app">
-      <router-view />
-      <!-- Hier wird der Inhalt der Route angezeigt -->
-    </div>
-  </header>
-
-  <main></main>
+  <div id="app">
+    <router-view />
+    <!-- Hier wird der Inhalt der Route angezeigt -->
+  </div>
 </template>
 
 <script>
-import LogoComponent from "./components/LogoComponent.vue";
-import HeaderComponent from "./components/HeaderComponent.vue"; // Header-Komponente importieren
 export default {
-  components: {
-    LogoComponent,
-    HeaderComponent,
-  },
+  components: {},
 };
 </script>
 
 <style scoped>
 header {
+  text-align: center;
   line-height: 1.5;
 }
 
-.logo {
-  display: block;
+#logo {
   margin: 0 auto 2rem;
 }
 
