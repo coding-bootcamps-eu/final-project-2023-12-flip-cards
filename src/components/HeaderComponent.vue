@@ -30,11 +30,21 @@ export default {
   color: var(--white);
   border-bottom: 2px solid var(--light-gray);
   text-align: center;
-  font-family: inherit; /* Inherit the global font */
+  font-family: inherit;
 }
 
 h1 {
   margin: 0;
   font-size: 1.5rem;
+}
+
+nav a {
+  margin: 0 10px;
+  color: var(--white);
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
 }
 </style>

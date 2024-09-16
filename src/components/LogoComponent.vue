@@ -6,7 +6,12 @@
       <div class="rounded-wurst left"></div>
       <div class="rounded-wurst right"></div>
       <div class="small-triangle"></div>
-      <!-- Kleines Dreieck -->
+      <!-- Small Triangle -->
+      <svg class="refresh-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M17.65 6.35a7.95 7.95 0 00-11.3 0 7.95 7.95 0 000 11.3 7.95 7.95 0 0011.3 0l1.4 1.4a9.969 9.969 0 01-14.1 0 9.969 9.969 0 010-14.1 9.969 9.969 0 0114.1 0l-1.4 1.4zm-5.3 5.3V5h2v6.65l2.35-2.35 1.4 1.4-5 5-5-5 1.4-1.4 2.35 2.35z"
+        />
+      </svg>
     </div>
   </body>
 </template>
@@ -82,8 +87,20 @@ body {
   transform: translateX(-50%);
 }
 
-/* Hover-Effekt für das Dreieck */
+/* Hover effect for the triangle */
 .triangle-container:hover {
   transform: rotate(-30deg);
+}
+
+/* Style for the refresh icon */
+.refresh-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px; /* Adjust the size as needed */
+  height: 24px;
+  fill: #6a1cc3; /* Adjust the color as needed */
+  pointer-events: none; /* Makes the icon non-interactive */
 }
 </style>
