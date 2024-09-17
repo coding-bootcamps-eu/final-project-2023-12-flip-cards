@@ -1,16 +1,15 @@
 <template>
-  <h1>This is the main component</h1>
-  <CardComponent msg="Card component" />
+  <h1>This is the card component</h1>
 </template>
 
 <script>
-import CardComponent from "@/components/CardComponent.vue";
 export default {
-  components: {
-    CardComponent,
-  },
+  components: {},
   data() {
-    return {};
+    return {
+      newCard: "",
+      cards: [],
+    };
   },
 };
 </script>
