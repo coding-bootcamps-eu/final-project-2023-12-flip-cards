@@ -1,3 +1,84 @@
-* {
+@import './base.css';
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+}
+
+:root {
+  --vibrant-purple: #6a1cc3;
+  --white: #ffffff;
+  --very-dark-gray: #111827;
+  --charcoal-gray: #303030;
+  --light-gray: #e5e7eb;
+  --peach-light-orange: #fdba74;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  background-color: var(--light-gray); /* Optional: Default background */
+}
+
+/* New Header and Nav Styles */
+.app-header {
+  padding: 10px;
+  background-color: var(--vibrant-purple);
+  color: var(--white);
+  border-bottom: 2px solid var(--light-gray);
+  text-align: center;
+  font-family: inherit; /* Inherit the global font */
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.app-header nav a {
+  color: var(--white);
+  padding: 0.5rem;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.app-header nav a:hover {
+  color: var(--peach-light-orange);
+}
+
+.app-header nav a.router-link-active {
+  font-weight: bold;
+  border-bottom: 2px solid var(--peach-light-orange); /* To indicate active page */
 }
