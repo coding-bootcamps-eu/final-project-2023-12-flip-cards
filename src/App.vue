@@ -1,13 +1,73 @@
 <template>
-  <div id="app">
-    <router-view />
-    <!-- Hier wird der Inhalt der Route angezeigt -->
-  </div>
+  <header>
+    <LogoComponent />
+    <div id="app">
+      <router-view />
+      <!-- Hier wird der Inhalt der Route angezeigt -->
+    </div>
+  </header>
+
+  <main>
+    <h1>API is running on {{ apiUrl }}</h1>
+    <div>
+      <h1>Modules von der API</h1>
+      <div v-if="dataModules">
+        <pre>{{ dataModules }}</pre>
+        <!-- Zeige die erhaltenen Daten an -->
+      </div>
+      <div v-else>
+        <p>Lade Daten...</p>
+      </div>
+    </div>
+    <div>
+      <h1>Cards von der API</h1>
+      <div v-if="dataCards">
+        <pre>{{ dataCards }}</pre>
+        <!-- Zeige die erhaltenen Daten an -->
+      </div>
+      <div v-else>
+        <p>Lade Daten...</p>
+      </div>
+    </div>
+  </main>
 </template>
 
 <script>
+import LogoComponent from '@/components/LogoComponent.vue'
 export default {
-  components: {}
+  data() {
+    return {
+      apiUrl: import.meta.env.VITE_API_URL,
+      dataModules: null,
+      dataCards: null
+    }
+  },
+  mounted() {
+    this.fetchData() // Daten abrufen, wenn die Komponente gemountet wird
+  },
+  methods: {
+    async fetchData() {
+      try {
+        const responseModules = await fetch(`${this.apiUrl}modules`) // Hier können verschiedene Endpunkte eingesetzt werden`
+        if (!responseModules.ok) {
+          throw new Error('Netzwerkantwort war nicht ok')
+        }
+        const dataModules = await responseModules.json()
+        this.dataModules = dataModules // Die von der API abgerufenen Daten werden in der data-Variable gespeichert
+        const responseCards = await fetch(`${this.apiUrl}cards`) // Ersetze 'cards' durch den tatsächlichen Endpunkt für die Cards
+        if (!responseCards.ok) {
+          throw new Error('Netzwerkantwort für Cards war nicht ok')
+        }
+        const dataCards = await responseCards.json()
+        this.dataCards = dataCards // Speichern der Karten-Daten
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Daten:', error)
+      }
+    }
+  },
+  components: {
+    LogoComponent
+  }
 }
 </script>
 
