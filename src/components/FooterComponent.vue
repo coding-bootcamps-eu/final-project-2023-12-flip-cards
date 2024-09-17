@@ -16,7 +16,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 div {
-  border: 5px solid hsl(310, 47%, 49%);
+  border-radius: 25px;
+  background-color: var(--vibrant-purple);
+  color: var(--white);
+  text-align: center;
 }
 
 h3 {
