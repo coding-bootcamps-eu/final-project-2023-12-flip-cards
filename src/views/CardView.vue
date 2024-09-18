@@ -75,16 +75,16 @@ export default {
       cardTitle: '',
       cardText1: '',
       cardText2: '',
-      currentModule: 'Modul X',
-      currentTool: 'Tool X',
-      currentTopic: 'Topic X',
+      currentModule: '',
+      currentTool: '',
+      currentTopic: '',
       timesPracticed: 0
     }
   },
   methods: {
     async fetchCardData() {
       try {
-        // Use the fetch API to get the card data
+        // Use fetch to get the card data
         const response = await fetch('http://localhost:3000/api/cards/2') // Adjust with your actual API endpoint
         const cardData = await response.json() // Parse the JSON data
 
