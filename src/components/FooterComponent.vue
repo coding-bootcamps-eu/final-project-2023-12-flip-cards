@@ -1,5 +1,5 @@
 <template>
-  <div class="bye">
+  <div class="footer" id="footer">
     <h1>{{ msg }}</h1>
     <h3>contact information</h3>
   </div>
@@ -16,7 +16,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 div {
-  border: 5px solid hsl(310, 47%, 49%);
+  border-radius: 25px;
+  background-color: var(--vibrant-purple);
+  color: var(--white);
+  text-align: center;
 }
 
 h3 {
