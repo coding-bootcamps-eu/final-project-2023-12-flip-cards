@@ -1,5 +1,5 @@
 <template>
-  <div class="bye">
+  <div class="footer" id="footer">
     <h1>{{ msg }}</h1>
     <h3>contact information</h3>
   </div>
