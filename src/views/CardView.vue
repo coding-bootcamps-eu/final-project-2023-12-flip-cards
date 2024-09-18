@@ -1,190 +1,239 @@
 <template>
   <div>
-    <header class="app-header">
-      <h1>Card View</h1>
-
-      <nav>
-        <router-link to="/">Home</router-link>
-        <router-link to="/card">Card</router-link>
-        <router-link to="/about">About</router-link>
-        <router-link to="/input">Input</router-link>
-        <router-link to="/options">Options</router-link>
-        <router-link to="/statistics">Statistics</router-link>
-      </nav>
+    <!-- Header -->
+    <header>
+      <HeaderComponent title="Practice Your Cards" msg="One card at a time" />
     </header>
 
-    <div class="flip-card-container">
-      <!-- Flip Card View -->
-      <div class="flip-card" :class="{ flipped: isFlipped }" @click="flipCard">
-        <!-- Card Front Side -->
-        <div class="flip-card-front">
-          <div class="card-header">
-            <p>Modul: {{ currentModule }}</p>
-            <p>Tool: {{ currentTool }}</p>
-            <p>Topic: {{ currentTopic }}</p>
-            <p>{{ timesPracticed }} times practiced</p>
-          </div>
-          <div class="card-content">
-            <h2>{{ cardTitle }}</h2>
-            <p>{{ cardText1 }}</p>
-          </div>
-        </div>
-
-        <!-- Card Back Side -->
-        <div class="flip-card-back">
-          <div class="card-header">
-            <p>Modul: {{ currentModule }}</p>
-            <p>Tool: {{ currentTool }}</p>
-            <p>Topic: {{ currentTopic }}</p>
-            <p>{{ timesPracticed }} times practiced</p>
-          </div>
-          <div class="card-content">
-            <h2>{{ cardTitle }}</h2>
-            <p>{{ cardText2 }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Buttons for moving card to different stacks -->
-      <div class="card-actions">
-        <button @click="moveToNewStack">Move to stack new</button>
-        <button @click="moveToReviewStack">Move to stack review</button>
-        <button @click="moveToConfidentStack">Move to stack confident</button>
-        <button @click="moveToArchivedStack">Move to stack archived</button>
-      </div>
+    <!-- Filter Buttons -->
+    <div class="filter-buttons">
+      <button @click="filterCards('all')">All</button>
+      <button @click="filterCards('new')">New</button>
+      <button @click="filterCards('review needed')">Review Needed</button>
+      <button @click="filterCards('confident')">Confident</button>
     </div>
 
-    <MainComponent />
-    <FooterComponent />
+    <!-- Card Display Section -->
+    <main>
+      <div v-if="filteredCards.length === 0">No cards available. Please create a new card!</div>
+
+      <div v-if="filteredCards.length > 0" class="card-container">
+        <div class="card" :class="{ flipped: isFlipped }" @click="flipCard">
+          <!-- Front Side of the Card -->
+          <div class="card-face card-front">
+            <div class="card-header">
+              <h3>{{ currentCard.title }}</h3>
+              <p>
+                Module: {{ currentCard.moduleId }}, Tool: {{ currentCard.toolId }}, Topic:
+                {{ currentCard.topicId }}
+              </p>
+            </div>
+            <div class="card-body">
+              <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
+            </div>
+          </div>
+
+          <!-- Back Side of the Card -->
+          <div class="card-face card-back">
+            <div class="card-body">
+              <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
+            </div>
+            <div class="card-footer">
+              <p><strong>Status:</strong> {{ currentCard.status }}</p>
+              <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons">
+        <button @click="prevCard" :disabled="currentIndex === 0">Previous</button>
+        <button @click="nextCard" :disabled="currentIndex === filteredCards.length - 1">
+          Next
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <FooterComponent msg="Footer component" />
+    </footer>
   </div>
 </template>
 
 <script>
-import MainComponent from '@/components/MainComponent.vue'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 import FooterComponent from '@/components/FooterComponent.vue'
 
 export default {
   name: 'CardView',
   components: {
-    MainComponent,
+    HeaderComponent,
     FooterComponent
   },
   data() {
     return {
-      isFlipped: false,
-      cardTitle: 'naslov',
-      cardText1: 'prvitext',
-      cardText2: 'drugiText',
-      currentModule: 'prviModul',
-      currentTool: 'prviTool',
-      currentTopic: 'prvi Topic',
-      timesPracticed: 1
+      cards: [], // Store all fetched cards
+      filteredCards: [], // Store the filtered cards based on status
+      currentIndex: 0, // Index of the current card being displayed
+      isFlipped: false, // Track if the card is flipped
+      selectedFilter: 'all' // Store the current filter (new, review needed, etc.)
+    }
+  },
+  computed: {
+    currentCard() {
+      // Get the card at the current index of the filtered cards
+      return this.filteredCards[this.currentIndex]
     }
   },
   methods: {
-    async fetchCardData() {
-      try {
-        // Use fetch to get the card data
-        const response = await fetch('http://localhost:3001/api/cards/2') // Adjust with your actual API endpoint
-        const cardData = await response.json() // Parse the JSON data
-
-        // Update the component's data with the fetched card data
-        this.cardTitle = cardData.title
-        this.cardText1 = cardData.text_1
-        this.cardText2 = cardData.text_2
-        this.timesPracticed = cardData.times_practiced
-
-        // Adjust tool, module, and topic dynamically based on API data
-        this.currentModule = `Modul ${cardData.moduleId}`
-        this.currentTool = `Tool ${cardData.toolId}`
-        this.currentTopic = `Topic ${cardData.topicId}`
-      } catch (error) {
-        console.error('Error fetching card data:', error)
+    fetchCards() {
+      // Fetch all the cards from the API
+      fetch('http://localhost:3001/cards')
+        .then((response) => response.json())
+        .then((data) => {
+          this.cards = data // Assign the fetched cards to the 'cards' array
+          this.filterCards('all') // Initially display all cards
+        })
+        .catch((error) => {
+          console.error('Error fetching cards:', error)
+        })
+    },
+    filterCards(status) {
+      // Filter cards based on the selected status
+      if (status === 'all') {
+        this.filteredCards = this.cards // Show all cards
+      } else {
+        this.filteredCards = this.cards.filter((card) => card.status === status)
+      }
+      this.currentIndex = 0 // Reset the current card index when the filter changes
+      this.isFlipped = false // Reset the flip state
+      this.selectedFilter = status // Update the selected filter
+    },
+    nextCard() {
+      // Move to the next card if possible
+      if (this.currentIndex < this.filteredCards.length - 1) {
+        this.currentIndex++
+        this.isFlipped = false // Reset the flip state when changing cards
+      }
+    },
+    prevCard() {
+      // Move to the previous card if possible
+      if (this.currentIndex > 0) {
+        this.currentIndex--
+        this.isFlipped = false // Reset the flip state when changing cards
       }
     },
     flipCard() {
+      // Toggle the flip state
       this.isFlipped = !this.isFlipped
-    },
-    moveToNewStack() {
-      // Logic to move card to "new" stack
-    },
-    moveToReviewStack() {
-      // Logic to move card to "review" stack
-    },
-    moveToConfidentStack() {
-      // Logic to move card to "confident" stack
-    },
-    moveToArchivedStack() {
-      // Logic to move card to "archived" stack
     }
   },
   mounted() {
-    // Fetch the card data when the component is mounted
-    this.fetchCardData()
+    // Call the fetchCards method when the component is mounted
+    this.fetchCards()
   }
 }
 </script>
 
 <style scoped>
-.app-header {
-  padding: 10px;
-  background-color: var(--vibrant-purple);
-  color: var(--white);
-  border-bottom: 2px solid var(--light-gray);
-  text-align: center;
-  font-family: inherit;
-}
-
-.flip-card-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.flip-card {
-  width: 300px;
-  height: 400px;
+.card-container {
   perspective: 1000px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.card {
+  width: 100%;
+  height: 250px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  position: relative;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-front {
+  background-color: #f9f9f9;
+}
+
+.card-back {
+  background-color: #fff;
+  transform: rotateY(180deg);
+}
+
+.card-header h3 {
+  margin: 0;
+}
+
+.card-body {
+  margin-top: 10px;
+}
+
+.card-footer {
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #6200ea;
+  color: white;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.flip-card-front,
-.flip-card-back {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  backface-visibility: hidden;
-  transition: transform 0.6s ease;
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-.flip-card-front {
-  background-color: #fff;
+.filter-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 20px 0;
 }
 
-.flip-card-back {
-  background-color: #f0f0f0;
-  transform: rotateY(180deg);
+.filter-buttons button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.flip-card.flipped .flip-card-front {
-  transform: rotateY(180deg);
+.filter-buttons button:hover {
+  background-color: #0056b3;
 }
 
-.flip-card.flipped .flip-card-back {
-  transform: rotateY(360deg);
-}
-
-.card-header,
-.card-content {
-  padding: 20px;
-}
-
-.card-actions {
-  margin-top: 20px;
-}
-
-.card-actions button {
-  margin: 5px;
-  padding: 10px;
+.filter-buttons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
