@@ -12,34 +12,48 @@
         <router-link to="/statistics">Statistics</router-link>
       </nav>
     </header>
-    <div>
-      <h1>This is the main component, and the card needs to be flipped yet</h1>
 
+    <div class="flip-card-container">
       <!-- Flip Card View -->
-      <div class="flip-card">
-        <div class="card-header">
-          <!-- Display current module, tool, and topic -->
-          <p>Modul: {{ currentModule }}</p>
-          <p>Tool: {{ currentTool }}</p>
-          <p>Topic: {{ currentTopic }}</p>
+      <div class="flip-card" :class="{ flipped: isFlipped }" @click="flipCard">
+        <!-- Card Front Side -->
+        <div class="flip-card-front">
+          <div class="card-header">
+            <p>Modul: {{ currentModule }}</p>
+            <p>Tool: {{ currentTool }}</p>
+            <p>Topic: {{ currentTopic }}</p>
+            <p>{{ timesPracticed }} times practiced</p>
+          </div>
+          <div class="card-content">
+            <h2>{{ cardTitle }}</h2>
+            <p>{{ cardText1 }}</p>
+          </div>
         </div>
 
-        <!-- Card Content -->
-        <div class="card-content">
-          <h2>{{ cardTitle }}</h2>
-          <p>{{ cardText }}</p>
-          <p>{{ timesPracticed }} times practiced</p>
-        </div>
-
-        <!-- Buttons for moving card to different stacks -->
-        <div class="card-actions">
-          <button @click="moveToNewStack">Move to stack new</button>
-          <button @click="moveToReviewStack">Move to stack review</button>
-          <button @click="moveToConfidentStack">Move to stack confident</button>
-          <button @click="moveToArchivedStack">Move to stack archived</button>
+        <!-- Card Back Side -->
+        <div class="flip-card-back">
+          <div class="card-header">
+            <p>Modul: {{ currentModule }}</p>
+            <p>Tool: {{ currentTool }}</p>
+            <p>Topic: {{ currentTopic }}</p>
+            <p>{{ timesPracticed }} times practiced</p>
+          </div>
+          <div class="card-content">
+            <h2>{{ cardTitle }}</h2>
+            <p>{{ cardText2 }}</p>
+          </div>
         </div>
       </div>
+
+      <!-- Buttons for moving card to different stacks -->
+      <div class="card-actions">
+        <button @click="moveToNewStack">Move to stack new</button>
+        <button @click="moveToReviewStack">Move to stack review</button>
+        <button @click="moveToConfidentStack">Move to stack confident</button>
+        <button @click="moveToArchivedStack">Move to stack archived</button>
+      </div>
     </div>
+
     <MainComponent />
     <FooterComponent />
   </div>
@@ -57,10 +71,56 @@ export default {
   },
   data() {
     return {
-      module: 'Modul X',
-      tool: 'Tool X',
-      topic: 'Topic X'
+      isFlipped: false,
+      cardTitle: '',
+      cardText1: '',
+      cardText2: '',
+      currentModule: 'Modul X',
+      currentTool: 'Tool X',
+      currentTopic: 'Topic X',
+      timesPracticed: 0
     }
+  },
+  methods: {
+    async fetchCardData() {
+      try {
+        // Use the fetch API to get the card data
+        const response = await fetch('http://localhost:3000/api/cards/2') // Adjust with your actual API endpoint
+        const cardData = await response.json() // Parse the JSON data
+
+        // Update the component's data with the fetched card data
+        this.cardTitle = cardData.title
+        this.cardText1 = cardData.text_1
+        this.cardText2 = cardData.text_2
+        this.timesPracticed = cardData.times_practiced
+
+        // Adjust tool, module, and topic dynamically based on API data
+        this.currentModule = `Modul ${cardData.moduleId}`
+        this.currentTool = `Tool ${cardData.toolId}`
+        this.currentTopic = `Topic ${cardData.topicId}`
+      } catch (error) {
+        console.error('Error fetching card data:', error)
+      }
+    },
+    flipCard() {
+      this.isFlipped = !this.isFlipped
+    },
+    moveToNewStack() {
+      // Logic to move card to "new" stack
+    },
+    moveToReviewStack() {
+      // Logic to move card to "review" stack
+    },
+    moveToConfidentStack() {
+      // Logic to move card to "confident" stack
+    },
+    moveToArchivedStack() {
+      // Logic to move card to "archived" stack
+    }
+  },
+  mounted() {
+    // Fetch the card data when the component is mounted
+    this.fetchCardData()
   }
 }
 </script>
@@ -75,23 +135,56 @@ export default {
   font-family: inherit;
 }
 
-.module-tool-topic {
-  font-size: 1rem;
-  margin-bottom: 10px;
+.flip-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-h1 {
-  margin: 0;
-  font-size: 1.5rem;
+.flip-card {
+  width: 300px;
+  height: 400px;
+  perspective: 1000px;
+  cursor: pointer;
 }
 
-nav a {
-  margin: 0 10px;
-  color: var(--white);
-  text-decoration: none;
+.flip-card-front,
+.flip-card-back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden;
+  transition: transform 0.6s ease;
 }
 
-nav a:hover {
-  text-decoration: underline;
+.flip-card-front {
+  background-color: #fff;
+}
+
+.flip-card-back {
+  background-color: #f0f0f0;
+  transform: rotateY(180deg);
+}
+
+.flip-card.flipped .flip-card-front {
+  transform: rotateY(180deg);
+}
+
+.flip-card.flipped .flip-card-back {
+  transform: rotateY(360deg);
+}
+
+.card-header,
+.card-content {
+  padding: 20px;
+}
+
+.card-actions {
+  margin-top: 20px;
+}
+
+.card-actions button {
+  margin: 5px;
+  padding: 10px;
 }
 </style>
