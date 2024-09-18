@@ -85,7 +85,7 @@ export default {
     async fetchCardData() {
       try {
         // Use fetch to get the card data
-        const response = await fetch('http://localhost:3000/api/cards/2') // Adjust with your actual API endpoint
+        const response = await fetch('http://localhost:3001/api/cards/2') // Adjust with your actual API endpoint
         const cardData = await response.json() // Parse the JSON data
 
         // Update the component's data with the fetched card data
