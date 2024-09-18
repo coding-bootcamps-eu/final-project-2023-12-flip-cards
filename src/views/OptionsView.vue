@@ -1,20 +1,20 @@
 <template>
-  <HeaderComponent msg="Header component" />
-  <MainComponent msg="Main component" />
-  <FooterComponent msg="Footer component" />
+  <header><HeaderComponent title="Home Page" msg="Header component" /></header>
+  <main><MainComponent msg="Main component" /></main>
+  <footer><FooterComponent msg="Footer component" /></footer>
 </template>
 
 <script>
-import HeaderComponent from '@/components/HeaderComponent.vue'
-import MainComponent from '@/components/MainComponent.vue'
-import FooterComponent from '@/components/FooterComponent.vue'
+import HeaderComponent from "@/components/HeaderComponent.vue";
+import MainComponent from "@/components/MainComponent.vue";
+import FooterComponent from "@/components/FooterComponent.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     HeaderComponent,
     MainComponent,
-    FooterComponent
-  }
-}
+    FooterComponent,
+  },
+};
 </script>
