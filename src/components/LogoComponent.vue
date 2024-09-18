@@ -1,19 +1,15 @@
 <template>
-  <h1>{{ msg }}</h1>
-  <body>
-    <div class="triangle-container">
+  <div id="logo" class="logo">
+    <!-- Umbenennung auf id=logo um es einfacher adressieren zu können -->
+    <h1>{{ msg }}</h1>
+    <div class="logo-shape">
+      <!-- Umbenennung auf "logo-shape" für mehr Klarheit -->
       <div class="rounded-wurst top"></div>
       <div class="rounded-wurst left"></div>
       <div class="rounded-wurst right"></div>
       <div class="small-triangle"></div>
-      <!-- Small Triangle -->
-      <svg class="refresh-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M17.65 6.35a7.95 7.95 0 00-11.3 0 7.95 7.95 0 000 11.3 7.95 7.95 0 0011.3 0l1.4 1.4a9.969 9.969 0 01-14.1 0 9.969 9.969 0 010-14.1 9.969 9.969 0 0114.1 0l-1.4 1.4zm-5.3 5.3V5h2v6.65l2.35-2.35 1.4 1.4-5 5-5-5 1.4-1.4 2.35 2.35z"
-        />
-      </svg>
     </div>
-  </body>
+  </div>
 </template>
 
 <script>
@@ -27,16 +23,18 @@ export default {
 }
 </script>
 
-<style scoped>
-body {
+<style>
+#logo {
   display: flex;
+  flex-direction: column; /* Vertikale Anordnung von h1 und Logo-Form */
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
+  height: 15vh; /* Höhe des Logos */
+  background-color: #f0f0f0; /* Hintergrundfarbe für Kontrast */
+  margin: 0;
 }
 
-.triangle-container {
+.logo-shape {
   position: relative;
   width: 120px;
   height: 120px;
@@ -87,8 +85,7 @@ body {
   transform: translateX(-50%);
 }
 
-/* Hover effect for the triangle */
-.triangle-container:hover {
+.logo-shape:hover {
   transform: rotate(-30deg);
 }
 
