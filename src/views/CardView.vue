@@ -72,13 +72,13 @@ export default {
   data() {
     return {
       isFlipped: false,
-      cardTitle: '',
-      cardText1: '',
-      cardText2: '',
-      currentModule: '',
-      currentTool: '',
-      currentTopic: '',
-      timesPracticed: 0
+      cardTitle: 'naslov',
+      cardText1: 'prvitext',
+      cardText2: 'drugiText',
+      currentModule: 'prviModul',
+      currentTool: 'prviTool',
+      currentTopic: 'prvi Topic',
+      timesPracticed: 1
     }
   },
   methods: {
