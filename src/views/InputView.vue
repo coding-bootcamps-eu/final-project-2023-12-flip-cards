@@ -2,75 +2,75 @@
   <div>
     <!-- Header -->
     <header>
-      <HeaderComponent title="Create New Card" msg="Fill in the details below to add a new card." />
+      <HeaderComponent title="Create Your Card" msg="Fill in the details below" />
     </header>
 
-    <!-- Main Content -->
+    <!-- Input Form Section -->
     <main>
-      <div class="form-container">
-        <h2>Add a New Flip Card</h2>
-        <form @submit.prevent="submitForm">
-          <div class="form-group">
-            <label for="module">Module:</label>
-            <input type="text" v-model="newCard.moduleId" required placeholder="Enter module ID" />
+      <div class="card-wrapper">
+        <!-- Card Wrapper für das Formular -->
+        <form @submit.prevent="saveCard">
+          <!-- Formular für die Eingaben -->
+          <div class="card-header">
+            <div class="input-group">
+              <label for="module-select">Module:</label>
+              <select id="module-select" v-model="newCard.moduleId" required>
+                <option v-for="module in modules" :value="module.id" :key="module.id">
+                  {{ module.name }}
+                </option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="tool-select">Tool:</label>
+              <select id="tool-select" v-model="newCard.toolId" required>
+                <option v-for="tool in tools" :value="tool.id" :key="tool.id">
+                  {{ tool.name }}
+                </option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="topic-select">Topic:</label>
+              <select id="topic-select" v-model="newCard.topicId" required>
+                <option v-for="topic in topics" :value="topic.id" :key="topic.id">
+                  {{ topic.name }}
+                </option>
+              </select>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label for="tool">Tool:</label>
-            <input type="text" v-model="newCard.toolId" required placeholder="Enter tool ID" />
+          <div class="card-body">
+            <p>
+              <label for="card-title"></label>
+              <input
+                type="text"
+                id="card-title"
+                v-model="newCard.title"
+                placeholder="Enter card title here"
+                required
+              />
+            </p>
+            <p>
+              <label for="front-text"></label>
+              <textarea
+                id="front-text"
+                v-model="newCard.text_1"
+                placeholder="Enter front text here"
+                required
+              ></textarea>
+            </p>
+            <p>
+              <label for="back-text"></label>
+              <textarea
+                id="back-text"
+                v-model="newCard.text_2"
+                placeholder="Enter back text here"
+                required
+              ></textarea>
+            </p>
           </div>
-
-          <div class="form-group">
-            <label for="topic">Topic:</label>
-            <input type="text" v-model="newCard.topicId" required placeholder="Enter topic ID" />
-          </div>
-
-          <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" v-model="newCard.title" required placeholder="Enter card title" />
-          </div>
-
-          <div class="form-group">
-            <label for="text_1">Text Side 1:</label>
-            <textarea
-              v-model="newCard.text_1"
-              required
-              placeholder="Enter text for side 1"
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="text_2">Text Side 2:</label>
-            <textarea
-              v-model="newCard.text_2"
-              required
-              placeholder="Enter text for side 2"
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="timesPracticed">Times Practiced:</label>
-            <input
-              type="number"
-              v-model="newCard.times_practiced"
-              required
-              placeholder="Number of times practiced"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="status">Status:</label>
-            <select v-model="newCard.status" required>
-              <option value="new">New</option>
-              <option value="review needed">Review Needed</option>
-              <option value="confident">Confident</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
-
-          <button type="submit">Create Card</button>
         </form>
       </div>
+      <button type="submit">Save Card</button>
+      <!-- Button zum Speichern -->
     </main>
 
     <!-- Footer -->
@@ -82,61 +82,92 @@
 
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue'
-import MainComponent from '@/components/MainComponent.vue'
 import FooterComponent from '@/components/FooterComponent.vue'
 
 export default {
   name: 'InputView',
   components: {
     HeaderComponent,
-    MainComponent,
     FooterComponent
   },
   data() {
     return {
       newCard: {
-        moduleId: '',
-        toolId: '',
-        topicId: '',
         title: '',
+        moduleId: null,
+        toolId: null,
+        topicId: null,
         text_1: '',
-        text_2: '',
-        times_practiced: 0,
-        status: 'new'
-      }
+        text_2: ''
+      },
+      modules: [], // Array für Module
+      tools: [], // Array für Tools
+      topics: [] // Array für Themen
     }
   },
+  mounted() {
+    this.fetchModules()
+    this.fetchTools()
+    this.fetchTopics()
+  },
   methods: {
-    submitForm() {
-      // Assuming your API is running at localhost:3001 and expecting POST requests at /cards
+    fetchModules() {
+      fetch('http://localhost:3001/modules') // API-Endpunkt für Module
+        .then((response) => response.json())
+        .then((data) => {
+          this.modules = data // Speichern der abgerufenen Module
+        })
+        .catch((error) => {
+          console.error('Fehler beim Abrufen der Module:', error)
+        })
+    },
+    fetchTools() {
+      fetch('http://localhost:3001/tools') // API-Endpunkt für Tools
+        .then((response) => response.json())
+        .then((data) => {
+          this.tools = data // Speichern der abgerufenen Tools
+        })
+        .catch((error) => {
+          console.error('Fehler beim Abrufen der Tools:', error)
+        })
+    },
+    fetchTopics() {
+      fetch('http://localhost:3001/topics') // API-Endpunkt für Themen
+        .then((response) => response.json())
+        .then((data) => {
+          this.topics = data // Speichern der abgerufenen Themen
+        })
+        .catch((error) => {
+          console.error('Fehler beim Abrufen der Themen:', error)
+        })
+    },
+    saveCard() {
+      // Sende die neue Karte an die API
       fetch('http://localhost:3001/cards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.newCard)
+        body: JSON.stringify(this.newCard) // Sende die neuen Kartendaten als JSON
       })
         .then((response) => response.json())
         .then((data) => {
-          alert('Card created successfully!')
-          console.log('Card created:', data)
-          // Optionally reset the form after submission
-          this.resetForm()
+          console.log('Karte gespeichert:', data)
+          this.resetForm() // Setze das Formular zurück nach dem Speichern
         })
         .catch((error) => {
-          console.error('Error creating card:', error)
+          console.error('Fehler beim Speichern der Karte:', error)
         })
     },
     resetForm() {
+      // Setze das Formular zurück
       this.newCard = {
-        moduleId: '',
-        toolId: '',
-        topicId: '',
         title: '',
+        moduleId: null,
+        toolId: null,
+        topicId: null,
         text_1: '',
-        text_2: '',
-        times_practiced: 0,
-        status: 'new'
+        text_2: ''
       }
     }
   }
@@ -144,50 +175,76 @@ export default {
 </script>
 
 <style scoped>
-.form-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+/* Allgemeine Stile für die InputView-Komponente */
+main {
+  padding-top: 10px; /* Padding für den Hauptbereich */
 }
 
-h2 {
-  text-align: center;
+/* Card Wrapper */
+.card-wrapper {
+  background-color: white; /* Hintergrundfarbe der Karte */
+  border: 1px solid #ddd; /* Rahmen um die Karte */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Schatten für die Karte */
+  padding: 0px; /* Padding innerhalb der Karte */
+  margin-bottom: 20px; /* Abstand zwischen den Karten */
 }
 
-.form-group {
-  margin-bottom: 15px;
+/* Header-Stile */
+.card-header {
+  display: flex; /* Flexbox für die Anordnung der Eingabefelder */
+  justify-content: space-between; /* Abstand zwischen den Eingabefeldern */
+  margin-bottom: 0px; /* Abstand unter dem Header */
+  background-color: #e4d2f9;
 }
 
-.form-group label {
-  display: block;
-  font-weight: bold;
+input[type='text'],
+textarea,
+select {
+  width: 100%; /* Breite auf 100% setzen für die nebeneinander stehenden Felder */
+  padding: 10px; /* Padding für die Eingabefelder */
+  margin: 5px 0; /* Abstand oben und unten */
+  border: 1px solid #ccc; /* Rahmen für die Eingabefelder */
+  border-radius: 5px; /* Abgerundete Ecken */
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+select {
+  background-color: #e4d2f9; /* Hintergrundfarbe */
+  color: #333; /* Textfarbe */
 }
 
+select:focus {
+  border-color: #6a1cc3; /* Beispiel: Setze die Rahmenfarbe auf einen lila Farbton */
+  outline: none; /* Entferne den Standard-Outline */
+}
+
+/* Optional: Höhe für Textarea anpassen */
+textarea {
+  height: 60px; /* Beispielhöhe für Textarea */
+}
+
+/* Platzhalter-Stile */
+input::placeholder,
+textarea::placeholder {
+  font-family: Arial, sans-serif; /* Setze die gewünschte Schriftart */
+  font-size: 14px; /* Setze die gewünschte Schriftgröße */
+  color: #aaa; /* Setze die gewünschte Schriftfarbe */
+}
+
+/* Button-Stile */
 button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  margin-bottom: 10px;
+  padding: 10px 20px; /* Padding für den Button */
+  background-color: var(--vibrant-purple); /* Hintergrundfarbe */
+  color: white; /* Textfarbe */
+  border: none; /* Kein Rahmen */
+  border-radius: 5px; /* Abgerundete Ecken */
+  cursor: pointer; /* Zeiger für den Cursor */
+  transition: background-color 0.3s; /* Übergangseffekt */
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #5a0e94; /* Dunklere Farbe beim Hover */
 }
+
+/* Optional: Weitere Stile für das Layout */
 </style>
