@@ -22,11 +22,11 @@
           <!-- Front Side of the Card -->
           <div class="card-face card-front">
             <div class="card-header">
-              <h3>{{ currentCard.title }}</h3>
               <p>
                 Module: {{ currentCard.moduleId }}, Tool: {{ currentCard.toolId }}, Topic:
                 {{ currentCard.topicId }}
               </p>
+              <h3>{{ currentCard.title }}</h3>
             </div>
             <div class="card-body">
               <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
