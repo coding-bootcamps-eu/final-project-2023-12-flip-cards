@@ -5,12 +5,10 @@
       <HeaderComponent title="Practice Your Cards" msg="One card at a time" />
     </header>
 
-    <!-- Filter Buttons -->
-    <div class="filter-buttons">
-      <button @click="filterCards('all')">All</button>
-      <button @click="filterCards('new')">New</button>
-      <button @click="filterCards('review needed')">Review Needed</button>
-      <button @click="filterCards('confident')">Confident</button>
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <button @click="prevCard" :disabled="currentIndex === 0">Previous</button>
+      <button @click="nextCard" :disabled="currentIndex === filteredCards.length - 1">Next</button>
     </div>
 
     <!-- Card Display Section -->
@@ -45,15 +43,15 @@
           </div>
         </div>
       </div>
-
-      <!-- Navigation Buttons -->
-      <div class="nav-buttons">
-        <button @click="prevCard" :disabled="currentIndex === 0">Previous</button>
-        <button @click="nextCard" :disabled="currentIndex === filteredCards.length - 1">
-          Next
-        </button>
-      </div>
     </main>
+
+    <!-- Filter Buttons -->
+    <div class="filter-buttons">
+      <button @click="filterCards('all')">All</button>
+      <button @click="filterCards('new')">New</button>
+      <button @click="filterCards('review needed')">Review Needed</button>
+      <button @click="filterCards('confident')">Confident</button>
+    </div>
 
     <!-- Footer -->
     <footer>
