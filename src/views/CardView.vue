@@ -157,7 +157,8 @@ export default {
       })
         .then((response) => {
           if (response.ok) {
-            this.$set(this.cards, this.currentIndex, updatedCard)
+            // Update the card directly
+            this.cards[this.currentIndex] = updatedCard // Direct assignment for Vue 3
             this.applyFilter() // Reapply filter to reflect changes
           } else {
             console.error('Error updating status')
