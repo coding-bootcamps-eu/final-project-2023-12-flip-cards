@@ -44,27 +44,10 @@
         </section>
 
         <section>
-          <h2>Credits</h2>
-          <p>
-            Special thanks to the Vue.js community and the contributors who helped make this app
-            possible. We also want to thank the open-source projects and tools that provided the
-            foundation for this application.
-          </p>
-        </section>
-
-        <section>
           <h2>Contact Us</h2>
           <p>
             Have feedback or need assistance? Feel free to reach out at
             <a href="mailto:support@example.com">support@example.com</a>.
-          </p>
-        </section>
-
-        <section>
-          <h2>Privacy Policy</h2>
-          <p>
-            Your privacy is important to us. We do not collect personal data. For more information,
-            please read our <a href="/privacy">Privacy Policy</a>.
           </p>
         </section>
       </div>
