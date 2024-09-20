@@ -273,7 +273,7 @@ export default {
   margin-right: 5px;
 }
 
-/* Responsive Design for Mobile Landscape View */
+/* Responsive Design for Mobile Landscape View  */
 @media (max-width: 600px) and (orientation: landscape) {
   .card-container {
     height: 100vh;
