@@ -1,6 +1,7 @@
 <template>
-  <LogoComponent />
   <header class="app-header">
+    <!-- Header as Root Element -->
+    <LogoComponent :msg="title" />
     <h1>{{ title }}</h1>
     <nav>
       <router-link to="/">Home</router-link>
@@ -8,6 +9,8 @@
       <router-link to="/input">Input</router-link>
       <router-link to="/options">Options</router-link>
       <router-link to="/statistics">Statistics</router-link>
+      <router-link to="/about">About</router-link>
+      <!-- Added About link -->
     </nav>
   </header>
 </template>
@@ -16,36 +19,40 @@
 import LogoComponent from '@/components/LogoComponent.vue'
 
 export default {
-  components: {
-    LogoComponent
-  },
+  name: 'HeaderComponent',
   props: {
     title: {
       type: String,
-      required: true
+      default: 'App Title'
     }
+  },
+  components: {
+    LogoComponent
   }
 }
 </script>
 
 <style scoped>
 .app-header {
-  padding: 10px;
-  background-color: var(--vibrant-purple);
-  color: var(--white);
-  border-bottom: 2px solid var(--light-gray);
-  text-align: center;
-  font-family: inherit;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--header-background);
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
 }
 
 h1 {
-  margin: 0;
-  font-size: 1.5rem;
+  margin-left: 1rem;
+  color: var(--vibrant-purple);
 }
 
 nav a {
-  margin: 0 10px;
-  color: var(--white);
+  color: var(--vibrant-purple);
   text-decoration: none;
 }
 

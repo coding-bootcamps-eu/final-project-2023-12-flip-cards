@@ -5,57 +5,82 @@
       <HeaderComponent title="Practice Your Cards" msg="One card at a time" />
     </header>
 
-    <!-- Navigation Buttons -->
-    <div class="nav-buttons">
-      <button @click="prevCard" :disabled="currentIndex === 0">Previous</button>
-      <button @click="nextCard" :disabled="currentIndex === filteredCards.length - 1">Next</button>
+    <!-- Filter Dropdown -->
+    <div class="filter-section">
+      <label for="filter">Filter Cards:</label>
+      <select id="filter" v-model="selectedFilter" @change="applyFilter">
+        <option value="all">All</option>
+        <option value="review needed">Review Needed</option>
+        <option value="confident">Confident</option>
+      </select>
     </div>
 
-    <!-- Card Display Section -->
-    <main>
+    <!-- Status Update Radio Buttons -->
+    <div class="status-update">
+      <label>
+        <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
+        Review Needed
+      </label>
+      <label>
+        <input type="radio" v-model="newStatus" value="confident" @change="updateCardStatus" />
+        Confident
+      </label>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="card-container">
+      <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
+        &#9664;
+        <!-- Left Arrow Symbol -->
+      </button>
+
       <div v-if="filteredCards.length === 0">No cards available. Please create a new card!</div>
 
-      <div v-if="filteredCards.length > 0" class="card-container">
-        <div class="card" :class="{ flipped: isFlipped }" @click="flipCard">
-          <!-- Front Side of the Card -->
-          <div class="card-face card-front">
-            <div class="card-header">
-              <p>
-                Module: {{ currentCard.moduleId }}, Tool: {{ currentCard.toolId }}, Topic:
-                {{ currentCard.topicId }}
-              </p>
-              <h3>{{ currentCard.title }}</h3>
-            </div>
-            <div class="card-body">
-              <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
-            </div>
+      <div
+        v-if="filteredCards.length > 0"
+        class="card"
+        :class="{ flipped: isFlipped }"
+        @click="flipCard"
+      >
+        <!-- Front Side of the Card -->
+        <div class="card-face card-front">
+          <div class="card-header">
+            <p>
+              Module: {{ currentCard.moduleId }}, Tool: {{ currentCard.toolId }}, Topic:
+              {{ currentCard.topicId }}
+            </p>
+            <h3>{{ currentCard.title }}</h3>
           </div>
+          <div class="card-body">
+            <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
+          </div>
+        </div>
 
-          <!-- Back Side of the Card -->
-          <div class="card-face card-back">
-            <div class="card-body">
-              <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
-            </div>
-            <div class="card-footer">
-              <p><strong>Status:</strong> {{ currentCard.status }}</p>
-              <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
-            </div>
+        <!-- Back Side of the Card -->
+        <div class="card-face card-back">
+          <div class="card-body">
+            <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
+          </div>
+          <div class="card-footer">
+            <p><strong>Status:</strong> {{ currentCard.status }}</p>
+            <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
           </div>
         </div>
       </div>
-    </main>
 
-    <!-- Filter Buttons -->
-    <div class="filter-buttons">
-      <button @click="filterCards('all')">All</button>
-      <button @click="filterCards('new')">New</button>
-      <button @click="filterCards('review needed')">Review Needed</button>
-      <button @click="filterCards('confident')">Confident</button>
+      <button
+        class="nav-arrow right-arrow"
+        @click="nextCard"
+        :disabled="currentIndex === filteredCards.length - 1"
+      >
+        &#9654;
+        <!-- Right Arrow Symbol -->
+      </button>
     </div>
 
     <!-- Footer -->
     <footer>
-      <FooterComponent msg="Footer component" />
+      <FooterComponent msg="Footer content" />
     </footer>
   </div>
 </template>
@@ -72,64 +97,78 @@ export default {
   },
   data() {
     return {
-      cards: [], // Store all fetched cards
-      filteredCards: [], // Store the filtered cards based on status
-      currentIndex: 0, // Index of the current card being displayed
-      isFlipped: false, // Track if the card is flipped
-      selectedFilter: 'all' // Store the current filter (new, review needed, etc.)
+      cards: [], // Cards fetched from the API
+      currentIndex: 0,
+      isFlipped: false,
+      selectedFilter: 'all',
+      newStatus: '',
+      filteredCards: [] // Cards after applying the filter
     }
   },
   computed: {
     currentCard() {
-      // Get the card at the current index of the filtered cards
       return this.filteredCards[this.currentIndex]
     }
   },
   methods: {
     fetchCards() {
-      // Fetch all the cards from the API
       fetch('http://localhost:3001/cards')
         .then((response) => response.json())
         .then((data) => {
-          this.cards = data // Assign the fetched cards to the 'cards' array
-          this.filterCards('all') // Initially display all cards
+          this.cards = data
+          this.applyFilter()
         })
         .catch((error) => {
           console.error('Error fetching cards:', error)
         })
     },
-    filterCards(status) {
-      // Filter cards based on the selected status
-      if (status === 'all') {
-        this.filteredCards = this.cards // Show all cards
+    applyFilter() {
+      if (this.selectedFilter === 'all') {
+        this.filteredCards = this.cards
       } else {
-        this.filteredCards = this.cards.filter((card) => card.status === status)
+        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter)
       }
-      this.currentIndex = 0 // Reset the current card index when the filter changes
-      this.isFlipped = false // Reset the flip state
-      this.selectedFilter = status // Update the selected filter
-    },
-    nextCard() {
-      // Move to the next card if possible
-      if (this.currentIndex < this.filteredCards.length - 1) {
-        this.currentIndex++
-        this.isFlipped = false // Reset the flip state when changing cards
-      }
-    },
-    prevCard() {
-      // Move to the previous card if possible
-      if (this.currentIndex > 0) {
-        this.currentIndex--
-        this.isFlipped = false // Reset the flip state when changing cards
-      }
+      this.currentIndex = 0 // Reset to the first card after applying filter
     },
     flipCard() {
-      // Toggle the flip state
       this.isFlipped = !this.isFlipped
+    },
+    prevCard() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--
+        this.isFlipped = false // Reset flip when moving to previous card
+      }
+    },
+    nextCard() {
+      if (this.currentIndex < this.filteredCards.length - 1) {
+        this.currentIndex++
+        this.isFlipped = false // Reset flip when moving to next card
+      }
+    },
+    updateCardStatus() {
+      const updatedCard = { ...this.currentCard, status: this.newStatus }
+
+      fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: this.newStatus })
+      })
+        .then((response) => {
+          if (response.ok) {
+            this.$set(this.cards, this.currentIndex, updatedCard)
+            this.applyFilter() // Reapply filter to reflect changes
+          } else {
+            console.error('Error updating status')
+          }
+        })
+        .catch((error) => {
+          console.error('Error updating status:', error)
+        })
     }
   },
-  mounted() {
-    // Call the fetchCards method when the component is mounted
+  created() {
     this.fetchCards()
   }
 }
@@ -137,23 +176,18 @@ export default {
 
 <style scoped>
 .card-container {
-  perspective: 1000px;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  position: relative; /* To allow positioning of arrows */
 }
 
 .card {
-  width: 100%;
-  height: 250px;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
+  width: 300px;
+  height: 200px;
+  perspective: 1000px;
   cursor: pointer;
-  position: relative;
-}
-
-.card.flipped {
-  transform: rotateY(180deg);
 }
 
 .card-face {
@@ -161,77 +195,107 @@ export default {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.6s;
 }
 
 .card-front {
-  background-color: #f9f9f9;
+  background-color: var(--vibrant-purple);
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 }
 
 .card-back {
-  background-color: #fff;
+  background-color: var(--peach-light-orange);
+  color: var(--white);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.card.flipped .card-front {
   transform: rotateY(180deg);
 }
 
-.card-header h3 {
-  margin: 0;
+.card.flipped .card-back {
+  transform: rotateY(0deg);
 }
 
-.card-body {
-  margin-top: 10px;
-}
-
-.card-footer {
-  margin-top: 20px;
-  font-size: 0.9em;
-  color: #666;
-}
-
-.nav-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px auto;
-  max-width: 400px;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #6200ea;
-  color: white;
+/* Navigation Arrows */
+.nav-arrow {
+  background: none;
   border: none;
-  border-radius: 5px;
+  font-size: 2rem;
   cursor: pointer;
+  color: var(--vibrant-purple);
+  padding: 0 20px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
 }
 
-button:disabled {
-  background-color: #ccc;
+.left-arrow {
+  left: 0;
+}
+
+.right-arrow {
+  right: 0;
+}
+
+.nav-arrow:disabled {
+  color: #ccc;
   cursor: not-allowed;
 }
 
-.filter-buttons {
+.filter-section {
+  margin-bottom: 1rem;
+}
+
+/* Status Update Radio Buttons */
+.status-update {
   display: flex;
-  justify-content: space-evenly;
-  margin: 20px 0;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
-.filter-buttons button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.status-update label {
+  margin-right: 10px;
 }
 
-.filter-buttons button:hover {
-  background-color: #0056b3;
+.status-update input[type='radio'] {
+  margin-right: 5px;
 }
 
-.filter-buttons button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+/* Responsive Design for Mobile Landscape View */
+@media (max-width: 600px) and (orientation: landscape) {
+  .card-container {
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card {
+    width: 90vw;
+    height: 60vh;
+  }
+
+  .nav-arrow {
+    font-size: 1.5rem;
+  }
+
+  .nav-buttons {
+    display: none;
+  }
+
+  .status-update {
+    display: none;
+  }
 }
 </style>
