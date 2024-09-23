@@ -48,7 +48,7 @@
 
     <!-- Footer -->
     <footer>
-      <FooterComponent msg="Footer component" />
+      <FooterComponent msg="Coding Bootcamps Europe" />
     </footer>
   </div>
 </template>
@@ -141,6 +141,7 @@ export default {
           break
         case 'week':
           // Filter cards practiced this week
+          // eslint-disable-next-line no-case-declarations
           const weekStart = new Date(
             currentDate.setDate(currentDate.getDate() - currentDate.getDay())
           )
@@ -149,6 +150,7 @@ export default {
           break
         case 'month':
           // Filter cards practiced this month
+          // eslint-disable-next-line no-case-declarations
           const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
           filterCondition = (cardDate) => cardDate >= monthStart
           this.filterText = 'Practiced This Month'

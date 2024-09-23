@@ -47,14 +47,14 @@
           <h2>Contact Us</h2>
           <p>
             Have feedback or need assistance? Feel free to reach out at
-            <a href="mailto:support@example.com">support@example.com</a>.
+            <a href="mailto:support@example.com">someone at the Bootcamp :D</a>.
           </p>
         </section>
       </div>
     </main>
 
     <footer>
-      <FooterComponent msg="Footer content" />
+      <FooterComponent msg="Cooding Bootcamps Europe" />
     </footer>
   </div>
 </template>

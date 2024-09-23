@@ -1,7 +1,7 @@
 <template>
   <div class="footer" id="footer">
     <h1>{{ msg }}</h1>
-    <h3>contact information</h3>
+    <h2>"Part Time Class 12/2023</h2>
   </div>
 </template>
 

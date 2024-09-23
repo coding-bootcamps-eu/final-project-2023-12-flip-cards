@@ -113,7 +113,7 @@
 
     <!-- Footer -->
     <footer>
-      <FooterComponent msg="Footer component" />
+      <FooterComponent msg="Coding Bootcamps Europe" />
     </footer>
   </div>
 </template>
