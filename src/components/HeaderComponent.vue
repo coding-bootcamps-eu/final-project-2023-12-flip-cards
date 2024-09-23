@@ -33,12 +33,12 @@ export default {
 
 <style scoped>
 .app-header {
-  display: flex;
-  flex-direction: column; /* Anordnung der Kinder in einer Spalte */
-  align-items: center; /* Zentriert die Kinder horizontal */
-  justify-content: space-between; /* Ändere dies, um das Logo und den Titel oben zu halten */
-  padding: 1rem;
-  background-color: var(--header-background);
+  padding: 10px;
+  background-color: var(--vibrant-purple);
+  color: var(--white);
+  border-bottom: 2px solid var(--light-gray);
+  text-align: center;
+  font-family: inherit;
 }
 
 .logo-container {
