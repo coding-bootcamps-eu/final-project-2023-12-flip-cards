@@ -10,21 +10,11 @@
       <label for="filter">Filter Cards:</label>
       <select id="filter" v-model="selectedFilter" @change="applyFilter">
         <option value="all">All</option>
+        <option value="new">New</option>
         <option value="review needed">Review Needed</option>
         <option value="confident">Confident</option>
+        <option value="archived">Archived</option>
       </select>
-    </div>
-
-    <!-- Status Update Radio Buttons -->
-    <div class="status-update">
-      <label>
-        <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
-        Review Needed
-      </label>
-      <label>
-        <input type="radio" v-model="newStatus" value="confident" @change="updateCardStatus" />
-        Confident
-      </label>
     </div>
 
     <!-- Navigation Arrows -->
@@ -80,7 +70,7 @@
 
     <!-- Footer -->
     <footer>
-      <FooterComponent msg="Footer content" />
+      <FooterComponent msg="Footer component" />
     </footer>
   </div>
 </template>
@@ -97,12 +87,11 @@ export default {
   },
   data() {
     return {
-      cards: [], // Cards fetched from the API
-      currentIndex: 0,
-      isFlipped: false,
-      selectedFilter: 'all',
-      newStatus: '',
-      filteredCards: [] // Cards after applying the filter
+      cards: [], // Alle Karten, die von der API abgerufen werden
+      filteredCards: [], // Gefilterte Karten basierend auf dem Status
+      currentIndex: 0, // Index der aktuell angezeigten Karte
+      isFlipped: false, // Zustand für das Umdrehen der Karte
+      selectedFilter: 'all' // Der aktuell ausgewählte Filter
     }
   },
   computed: {
@@ -116,61 +105,39 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.cards = data
-          this.applyFilter()
+          this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
         })
         .catch((error) => {
-          console.error('Error fetching cards:', error)
+          console.error('Fehler beim Abrufen der Karten:', error)
         })
     },
     applyFilter() {
       if (this.selectedFilter === 'all') {
-        this.filteredCards = this.cards
+        this.filteredCards = this.cards // Alle Karten anzeigen
       } else {
         this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter)
       }
-      this.currentIndex = 0 // Reset to the first card after applying filter
+      this.currentIndex = 0 // Setze den Index zurück, wenn der Filter angewendet wird
+      this.isFlipped = false // Setze den Zustand für das Umdrehen der Karte zurück
     },
     flipCard() {
-      this.isFlipped = !this.isFlipped
+      this.isFlipped = !this.isFlipped // Umdrehen der Karte
     },
     prevCard() {
       if (this.currentIndex > 0) {
         this.currentIndex--
-        this.isFlipped = false // Reset flip when moving to previous card
+        this.isFlipped = false // Setze den Zustand zurück, wenn zur vorherigen Karte gewechselt wird
       }
     },
     nextCard() {
       if (this.currentIndex < this.filteredCards.length - 1) {
         this.currentIndex++
-        this.isFlipped = false // Reset flip when moving to next card
+        this.isFlipped = false // Setze den Zustand zurück, wenn zur nächsten Karte gewechselt wird
       }
-    },
-    updateCardStatus() {
-      const updatedCard = { ...this.currentCard, status: this.newStatus }
-
-      fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: this.newStatus })
-      })
-        .then((response) => {
-          if (response.ok) {
-            // Update the card directly
-            this.cards[this.currentIndex] = updatedCard // Direct assignment for Vue 3
-            this.applyFilter() // Reapply filter to reflect changes
-          } else {
-            console.error('Error updating status')
-          }
-        })
-        .catch((error) => {
-          console.error('Error updating status:', error)
-        })
     }
   },
   created() {
-    this.fetchCards()
+    this.fetchCards() // Daten beim Erstellen der Komponente abrufen
   }
 }
 </script>

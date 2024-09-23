@@ -2,7 +2,6 @@
   <header class="app-header">
     <!-- Header as Root Element -->
     <LogoComponent :msg="title" />
-    <h1>{{ title }}</h1>
     <nav>
       <router-link to="/">Home</router-link>
       <router-link to="/card">Card</router-link>
@@ -35,10 +34,16 @@ export default {
 <style scoped>
 .app-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* Anordnung der Kinder in einer Spalte */
+  align-items: center; /* Zentriert die Kinder horizontal */
+  justify-content: space-between; /* Ändere dies, um das Logo und den Titel oben zu halten */
   padding: 1rem;
   background-color: var(--header-background);
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column; /* Anordnung von Logo und Titel in einer Spalte */
 }
 
 nav {
@@ -46,17 +51,12 @@ nav {
   gap: 1rem;
 }
 
-h1 {
-  margin-left: 1rem;
-  color: var(--vibrant-purple);
-}
-
-nav a {
+nav router-link {
   color: var(--vibrant-purple);
   text-decoration: none;
 }
 
-nav a:hover {
+nav router-link:hover {
   text-decoration: underline;
 }
 </style>
