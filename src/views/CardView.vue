@@ -5,26 +5,53 @@
       <HeaderComponent title="Practice Your Cards" msg="One card at a time" />
     </header>
 
-    <!-- Filter Dropdown -->
-    <div class="filter-section">
-      <label for="filter">Filter Cards:</label>
-      <select id="filter" v-model="selectedFilter" @change="applyFilter">
-        <option value="all">All</option>
-        <option value="new">New</option>
-        <option value="review needed">Review Needed</option>
-        <option value="confident">Confident</option>
-        <option value="archived">Archived</option>
-      </select>
-    </div>
-
     <!-- Navigation Arrows -->
     <div class="card-container">
       <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
         &#9664;
-        <!-- Left Arrow Symbol -->
       </button>
 
-      <div v-if="filteredCards.length === 0">No cards in this stack.</div>
+      <div class="tab-container">
+        <div class="tabs">
+          <span class="tab" :class="{ active: currentTab === 0 }">
+            Module:
+            <select v-model="selectedModule" @change="updateCurrentCard" style="margin-left: 5px">
+              <option v-for="module in modules" :key="module.id" :value="module.id">
+                {{ module.name }}
+              </option>
+            </select>
+          </span>
+
+          <span class="tab" :class="{ active: currentTab === 1 }">
+            Tool:
+            <select v-model="selectedTool" @change="updateCurrentCard" style="margin-left: 5px">
+              <option v-for="tool in tools" :key="tool.id" :value="tool.id">
+                {{ tool.name }}
+              </option>
+            </select>
+          </span>
+
+          <span class="tab" :class="{ active: currentTab === 2 }">
+            Topic:
+            <select v-model="selectedTopic" @change="updateCurrentCard" style="margin-left: 5px">
+              <option v-for="topic in topics" :key="topic.id" :value="topic.id">
+                {{ topic.name }}
+              </option>
+            </select>
+          </span>
+
+          <span class="tab" :class="{ active: currentTab === 3 }">
+            Current Stack:
+            <select v-model="selectedFilter" @change="applyFilter" style="margin-left: 5px">
+              <option value="all">All</option>
+              <option value="new">New</option>
+              <option value="review needed">Review Needed</option>
+              <option value="confident">Confident</option>
+              <option value="archived">Archived</option>
+            </select>
+          </span>
+        </div>
+      </div>
 
       <div
         v-if="filteredCards.length > 0"
@@ -35,10 +62,6 @@
         <!-- Front Side of the Card -->
         <div class="card-face card-front">
           <div class="card-header">
-            <p>
-              Module: {{ currentCard.moduleId }}, Tool: {{ currentCard.toolId }}, Topic:
-              {{ currentCard.topicId }}
-            </p>
             <h3>{{ currentCard.title }}</h3>
           </div>
           <div class="card-body">
@@ -64,21 +87,30 @@
         :disabled="currentIndex === filteredCards.length - 1"
       >
         &#9654;
-        <!-- Right Arrow Symbol -->
       </button>
     </div>
 
     <!-- Status Update Radio Buttons -->
     <div class="status-update">
+      <h4>Move to stack</h4>
       <label>
         <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
-        Review Needed
+        Review needed
       </label>
       <label>
         <input type="radio" v-model="newStatus" value="confident" @change="updateCardStatus" />
         Confident
       </label>
+      <label>
+        <input type="radio" v-model="newStatus" value="new" @change="updateCardStatus" />
+        New
+      </label>
+      <label>
+        <input type="radio" v-model="newStatus" value="archived" @change="updateCardStatus" />
+        Archived
+      </label>
     </div>
+
     <!-- Footer -->
     <footer>
       <FooterComponent msg="Footer component" />
@@ -91,87 +123,105 @@ import HeaderComponent from '@/components/HeaderComponent.vue'
 import FooterComponent from '@/components/FooterComponent.vue'
 
 export default {
-  name: 'CardView',
+  name: 'App',
   components: {
     HeaderComponent,
     FooterComponent
   },
   data() {
     return {
-      cards: [], // Alle Karten, die von der API abgerufen werden
-      filteredCards: [], // Gefilterte Karten basierend auf dem Status
-      currentIndex: 0, // Index der aktuell angezeigten Karte
-      isFlipped: false, // Zustand für das Umdrehen der Karte
-      selectedFilter: 'all' // Der aktuell ausgewählte Filter
+      filteredCards: [],
+      cards: [],
+      isFlipped: false,
+      selectedFilter: 'all',
+      newStatus: '',
+      currentIndex: 0,
+      selectedModule: null,
+      selectedTool: null,
+      selectedTopic: null,
+      modules: [], // Array für Module
+      tools: [], // Array für Tools
+      topics: [] // Array für Themen
     }
   },
   computed: {
     currentCard() {
-      return this.filteredCards[this.currentIndex]
+      return this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte zurück oder null
     }
   },
   methods: {
-    fetchCards() {
-      fetch('http://localhost:3001/cards')
-        .then((response) => response.json())
-        .then((data) => {
-          this.cards = data
-          this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
-        })
-        .catch((error) => {
-          console.error('Fehler beim Abrufen der Karten:', error)
-        })
+    async fetchCards() {
+      try {
+        const response = await fetch('http://localhost:3001/cards') // URL zu deiner API
+        const data = await response.json()
+        this.cards = data // Setze alle Karten
+
+        // Hole die Details für jedes Modul, Tool und Thema
+        for (let card of this.cards) {
+          const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
+            fetch(`http://localhost:3001/modules/${card.moduleId}`),
+            fetch(`http://localhost:3001/tools/${card.toolId}`),
+            fetch(`http://localhost:3001/topics/${card.topicId}`)
+          ])
+
+          const moduleData = await moduleResponse.json()
+          const toolData = await toolResponse.json()
+          const topicData = await topicResponse.json()
+
+          // Füge die Module, Tools und Themen zu jeder Karte hinzu
+          card.module = moduleData
+          card.tool = toolData
+          card.topic = topicData
+        }
+
+        this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Karten:', error)
+      }
+    },
+    async fetchCategories() {
+      // API-Anfragen, um Module, Tools und Themen zu laden
+      const modulesResponse = await fetch('http://localhost:3001/modules')
+      const toolsResponse = await fetch('http://localhost:3001/tools')
+      const topicsResponse = await fetch('http://localhost:3001/topics')
+
+      this.modules = await modulesResponse.json()
+      this.tools = await toolsResponse.json()
+      this.topics = await topicsResponse.json()
     },
     applyFilter() {
       if (this.selectedFilter === 'all') {
         this.filteredCards = this.cards // Alle Karten anzeigen
       } else {
-        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter)
+        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter) // Gefilterte Karten
       }
-      this.currentIndex = 0 // Setze den Index zurück, wenn der Filter angewendet wird
+      this.currentIndex = 0 // Setze den Index zurück
       this.isFlipped = false // Setze den Zustand für das Umdrehen der Karte zurück
+    },
+    updateCurrentCard() {
+      this.currentIndex = 0 // Setze den Index zurück
+      // Filtere die Karten basierend auf den ausgewählten IDs
+      this.filteredCards = this.cards.filter(
+        (card) =>
+          card.moduleId === this.selectedModule &&
+          card.toolId === this.selectedTool &&
+          card.topicId === this.selectedTopic
+      )
     },
     flipCard() {
       this.isFlipped = !this.isFlipped // Umdrehen der Karte
     },
-    prevCard() {
-      if (this.currentIndex > 0) {
-        this.currentIndex--
-        this.isFlipped = false // Setze den Zustand zurück, wenn zur vorherigen Karte gewechselt wird
-      }
-    },
-    nextCard() {
-      if (this.currentIndex < this.filteredCards.length - 1) {
-        this.currentIndex++
-        this.isFlipped = false // Setze den Zustand zurück, wenn zur nächsten Karte gewechselt wird
-      }
-    },
     updateCardStatus() {
-      const updatedCard = { ...this.currentCard, status: this.newStatus }
-
-      fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: this.newStatus })
-      })
-        .then((response) => {
-          if (response.ok) {
-            // Update the card directly
-            this.cards[this.currentIndex] = updatedCard // Direct assignment for Vue 3
-            this.applyFilter() // Reapply filter to reflect changes
-          } else {
-            console.error('Error updating status')
-          }
-        })
-        .catch((error) => {
-          console.error('Error updating status:', error)
-        })
+      if (this.currentCard) {
+        this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
+        // Hier kannst du auch eine API-Anfrage hinzufügen, um den Status in der Datenbank zu aktualisieren
+        console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
+      }
     }
   },
-  created() {
-    this.fetchCards() // Daten beim Erstellen der Komponente abrufen
+  mounted() {
+    this.fetchCards() // Lade die Karten
+    this.fetchCategories() // Lade die Module, Tools und Themen
   }
 }
 </script>
@@ -179,10 +229,59 @@ export default {
 <style scoped>
 .card-container {
   display: flex;
+  flex-direction: column;
+  align-items: center; /* Zentriert den gesamten Inhalt */
+}
+
+.dropdown-container {
+  margin: 20px 0; /* Abstand oben und unten */
+}
+
+.tab-container {
+  display: flex;
+  justify-content: center; /* Zentriert die Registerkarten */
+  margin-bottom: 1rem; /* Abstand nach unten */
+}
+
+.tabs {
+  display: flex; /* Flexbox für die Registerkarten */
+}
+
+.tab {
+  display: inline-block; /* Inline-Block für die Registerkarten */
+  padding: 10px 20px; /* Innenabstand */
+  background-color: #32557f; /* Hintergrundfarbe */
+  color: #fff; /* Schriftfarbe */
+  border-radius: 30px; /* Gerundete Ecken */
+  margin: 0 5px; /* Abstand zwischen den Registerkarten */
+  cursor: pointer; /* Zeiger-Cursor */
+  transition:
+    background-color 0.3s,
+    color 0.3s; /* Übergangseffekte */
+}
+
+/* Hover-Effekt */
+.tab:hover {
+  background-color: #7eb4e2; /* Hintergrundfarbe beim Hover */
+}
+
+/* Aktive Registerkarte */
+.tab.active {
+  background-color: #fff; /* Hintergrundfarbe für die aktive Registerkarte */
+  color: #000; /* Schriftfarbe für die aktive Registerkarte */
+}
+
+.tab select {
+  margin-left: 5px; /* Abstand zwischen dem Tab-Text und dem Dropdown-Menü */
+}
+
+.card-container {
+  display: flex;
   justify-content: center;
   align-items: center;
-  height: 300px;
-  position: relative; /* To allow positioning of arrows */
+  height: 300px; /* Adjust height as necessary */
+  position: relative; /* To allow positioning of the card */
+  z-index: 1; /* Ensure card is below tabs */
 }
 
 .card {
@@ -190,6 +289,9 @@ export default {
   height: 200px;
   perspective: 1000px;
   cursor: pointer;
+  position: relative; /* To allow stacking */
+  top: 0; /* Reset position to default */
+  z-index: 0; /* Ensure card is below tabs */
 }
 
 .card-face {
