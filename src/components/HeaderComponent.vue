@@ -6,7 +6,7 @@
       <router-link to="/">Home</router-link>
       <router-link to="/card">Card</router-link>
       <router-link to="/input">Input</router-link>
-      <router-link to="/options">Options</router-link>
+      <!--<router-link to="/options">Options</router-link>-->
       <router-link to="/statistics">Statistics</router-link>
       <router-link to="/about">About</router-link>
       <!-- Added About link -->
