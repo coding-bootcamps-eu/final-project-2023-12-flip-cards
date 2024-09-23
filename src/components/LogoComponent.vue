@@ -31,6 +31,7 @@ export default {
   align-items: center;
   height: 15vh; /* Höhe des Logos */
   background-color: #f0f0f0; /* Hintergrundfarbe für Kontrast */
+  color: #6a1cc3;
   margin: 0;
 }
 
