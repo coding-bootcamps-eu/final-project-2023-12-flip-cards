@@ -24,7 +24,7 @@
         <!-- Left Arrow Symbol -->
       </button>
 
-      <div v-if="filteredCards.length === 0">No cards available. Please create a new card!</div>
+      <div v-if="filteredCards.length === 0">No cards in this stack.</div>
 
       <div
         v-if="filteredCards.length > 0"
@@ -68,6 +68,17 @@
       </button>
     </div>
 
+    <!-- Status Update Radio Buttons -->
+    <div class="status-update">
+      <label>
+        <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
+        Review Needed
+      </label>
+      <label>
+        <input type="radio" v-model="newStatus" value="confident" @change="updateCardStatus" />
+        Confident
+      </label>
+    </div>
     <!-- Footer -->
     <footer>
       <FooterComponent msg="Footer component" />
@@ -134,6 +145,29 @@ export default {
         this.currentIndex++
         this.isFlipped = false // Setze den Zustand zurück, wenn zur nächsten Karte gewechselt wird
       }
+    },
+    updateCardStatus() {
+      const updatedCard = { ...this.currentCard, status: this.newStatus }
+
+      fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: this.newStatus })
+      })
+        .then((response) => {
+          if (response.ok) {
+            // Update the card directly
+            this.cards[this.currentIndex] = updatedCard // Direct assignment for Vue 3
+            this.applyFilter() // Reapply filter to reflect changes
+          } else {
+            console.error('Error updating status')
+          }
+        })
+        .catch((error) => {
+          console.error('Error updating status:', error)
+        })
     }
   },
   created() {
