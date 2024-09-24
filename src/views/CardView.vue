@@ -10,30 +10,30 @@
       <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
         &#9664;
       </button>
-
+      <!-- Tab Container -->
       <div class="tab-container">
         <div class="tabs">
-          <span class="tab" :class="{ active: currentTab === 0 }">
+          <span class="tab" :class="{ active: currentTab === 0 }" @click="setActiveTab(0)">
             Module:
-            <select v-model="selectedModule" @change="updateCurrentCard" style="margin-left: 5px">
+            <select v-model="selectedModule" @change="updateCurrentCard">
               <option v-for="module in modules" :key="module.id" :value="module.id">
                 {{ module.name }}
               </option>
             </select>
           </span>
 
-          <span class="tab" :class="{ active: currentTab === 1 }">
+          <span class="tab" :class="{ active: currentTab === 1 }" @click="setActiveTab(1)">
             Tool:
-            <select v-model="selectedTool" @change="updateCurrentCard" style="margin-left: 5px">
+            <select v-model="selectedTool" @change="updateCurrentCard">
               <option v-for="tool in tools" :key="tool.id" :value="tool.id">
                 {{ tool.name }}
               </option>
             </select>
           </span>
 
-          <span class="tab" :class="{ active: currentTab === 2 }">
+          <span class="tab" :class="{ active: currentTab === 2 }" @click="setActiveTab(2)">
             Topic:
-            <select v-model="selectedTopic" @change="updateCurrentCard" style="margin-left: 5px">
+            <select v-model="selectedTopic" @change="updateCurrentCard">
               <option v-for="topic in topics" :key="topic.id" :value="topic.id">
                 {{ topic.name }}
               </option>
@@ -42,7 +42,7 @@
 
           <span class="tab" :class="{ active: currentTab === 3 }">
             Current Stack:
-            <select v-model="selectedFilter" @change="applyFilter" style="margin-left: 5px">
+            <select v-model="selectedFilter" @change="applyFilter">
               <option value="all">All</option>
               <option value="new">New</option>
               <option value="review needed">Review Needed</option>
@@ -65,14 +65,14 @@
             <h3>{{ currentCard.title }}</h3>
           </div>
           <div class="card-body">
-            <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
+            <p><strong>front:</strong> {{ currentCard.text_1 }}</p>
           </div>
         </div>
 
         <!-- Back Side of the Card -->
         <div class="card-face card-back">
           <div class="card-body">
-            <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
+            <p><strong>back:</strong> {{ currentCard.text_2 }}</p>
           </div>
           <div class="card-footer">
             <p><strong>Status:</strong> {{ currentCard.status }}</p>
@@ -92,7 +92,7 @@
 
     <!-- Status Update Radio Buttons -->
     <div class="status-update">
-      <h4>Move to stack</h4>
+      <h4>Move to</h4>
       <label>
         <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
         Review needed
@@ -141,7 +141,10 @@ export default {
       selectedTopic: null,
       modules: [], // Array für Module
       tools: [], // Array für Tools
-      topics: [] // Array für Themen
+      topics: [], // Array für Themen
+      availableTools: [], // Verfügbare Tools basierend auf dem ausgewählten Modul
+      availableTopics: [], // Verfügbare Themen basierend auf dem ausgewählten Tool
+      currentTab: 0
     }
   },
   computed: {
@@ -189,6 +192,9 @@ export default {
       this.tools = await toolsResponse.json()
       this.topics = await topicsResponse.json()
     },
+    setActiveTab(index) {
+      this.currentTab = index // Setze den aktuellen Tab
+    },
     applyFilter() {
       if (this.selectedFilter === 'all') {
         this.filteredCards = this.cards // Alle Karten anzeigen
@@ -200,13 +206,15 @@ export default {
     },
     updateCurrentCard() {
       this.currentIndex = 0 // Setze den Index zurück
+
       // Filtere die Karten basierend auf den ausgewählten IDs
-      this.filteredCards = this.cards.filter(
-        (card) =>
-          card.moduleId === this.selectedModule &&
-          card.toolId === this.selectedTool &&
-          card.topicId === this.selectedTopic
-      )
+      this.filteredCards = this.cards.filter((card) => {
+        const matchesModule = this.selectedModule ? card.moduleId === this.selectedModule : true
+        const matchesTool = this.selectedTool ? card.toolId === this.selectedTool : true
+        const matchesTopic = this.selectedTopic ? card.topicId === this.selectedTopic : true
+
+        return matchesModule && matchesTool && matchesTopic
+      })
     },
     flipCard() {
       this.isFlipped = !this.isFlipped // Umdrehen der Karte
@@ -237,42 +245,45 @@ export default {
   margin: 20px 0; /* Abstand oben und unten */
 }
 
+.dropdown-container select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: var(--vibrant-purple);
+  color: #fff;
+  cursor: pointer;
+  width: 150px;
+}
+
+.dropdown-container select:hover {
+  border-color: var(--vibrant-purple); /* Rahmenfarbe beim Hover */
+}
+
 .tab-container {
   display: flex;
-  justify-content: center; /* Zentriert die Registerkarten */
-  margin-bottom: 1rem; /* Abstand nach unten */
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .tabs {
-  display: flex; /* Flexbox für die Registerkarten */
+  display: flex;
 }
 
 .tab {
-  display: inline-block; /* Inline-Block für die Registerkarten */
-  padding: 10px 20px; /* Innenabstand */
-  background-color: #32557f; /* Hintergrundfarbe */
-  color: #fff; /* Schriftfarbe */
-  border-radius: 30px; /* Gerundete Ecken */
-  margin: 0 5px; /* Abstand zwischen den Registerkarten */
-  cursor: pointer; /* Zeiger-Cursor */
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--vibrant-purple);
+  color: #fff;
+  border-radius: 30px;
+  margin: 0 5px;
+  cursor: pointer;
   transition:
     background-color 0.3s,
-    color 0.3s; /* Übergangseffekte */
+    color 0.3s;
 }
 
-/* Hover-Effekt */
 .tab:hover {
-  background-color: #7eb4e2; /* Hintergrundfarbe beim Hover */
-}
-
-/* Aktive Registerkarte */
-.tab.active {
-  background-color: #fff; /* Hintergrundfarbe für die aktive Registerkarte */
-  color: #000; /* Schriftfarbe für die aktive Registerkarte */
-}
-
-.tab select {
-  margin-left: 5px; /* Abstand zwischen dem Tab-Text und dem Dropdown-Menü */
+  background-color: var(--vibrant-purple); /* Eine dunklere Farbe für den Hover-Effekt */
 }
 
 .card-container {
