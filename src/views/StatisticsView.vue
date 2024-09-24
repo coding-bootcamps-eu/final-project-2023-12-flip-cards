@@ -19,16 +19,16 @@
           <p><strong>Confident Cards:</strong> {{ counts.confident }}</p>
         </div>
 
-        <!-- Practice and Learning Statistics -->
+        <!-- Practice and Learning Statistics 
         <div class="stat-buttons">
           <button @click="filterBy('today')">View Practiced Today</button>
           <button @click="filterBy('week')">View Practiced This Week</button>
           <button @click="filterBy('month')">View Practiced This Month</button>
-        </div>
+        </div>*// -->
 
         <!-- Status Filter Buttons -->
         <div class="stat-buttons">
-          <button @click="filterByStatus('review_needed')">View Cards Needing Review</button>
+          <button @click="filterByStatus('review needed')">View Cards Needing Review</button>
           <button @click="filterByStatus('confident')">View Confident Cards</button>
         </div>
 
@@ -122,20 +122,20 @@ export default {
         }
 
         // Count based on card status
-        if (card.status === 'review_needed') {
+        if (card.status === 'review needed') {
           this.counts.reviewNeeded++
         } else if (card.status === 'confident') {
           this.counts.confident++
         }
       })
     },
-    filterBy(period) {
+    /* filterBy(period) {
       const currentDate = new Date()
       let filterCondition = null
 
       switch (period) {
         case 'today':
-          // Filter cards practiced today
+         Filter cards practiced today
           filterCondition = (cardDate) => cardDate.toDateString() === currentDate.toDateString()
           this.filterText = 'Practiced Today'
           break
@@ -165,16 +165,16 @@ export default {
           return filterCondition(cardDate)
         })
       }
-    },
+    },*/
     filterByStatus(status) {
-      // Filter cards based on their status (review_needed or confident)
+      // Filter cards based on their status (review needed or confident)
       this.filteredCards = this.cards.filter((card) => card.status === status)
 
-      if (status === 'review_needed') {
+      /* if (status === 'review needed') {
         this.filterText = 'Cards Needing Review'
       } else if (status === 'confident') {
         this.filterText = 'Confident Cards'
-      }
+      }*/
     }
   },
   mounted() {

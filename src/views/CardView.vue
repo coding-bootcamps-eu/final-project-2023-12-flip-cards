@@ -139,97 +139,126 @@ export default {
       selectedModule: null,
       selectedTool: null,
       selectedTopic: null,
-      modules: [], // Array für Module
-      tools: [], // Array für Tools
-      topics: [], // Array für Themen
-      availableTools: [], // Verfügbare Tools basierend auf dem ausgewählten Modul
-      availableTopics: [], // Verfügbare Themen basierend auf dem ausgewählten Tool
-      currentTab: 0
+      modules: [], // Array for Modules
+      tools: [], // Array for Tools
+      topics: [], // Array for Topics
+      availableTools: [], // Available Tools based on selected Module
+      availableTopics: [], // Available Topics based on selected Tool
+      currentTab: 0,
+      counts: {
+        total: 0,
+        today: 0,
+        week: 0,
+        month: 0,
+        reviewNeeded: 0,
+        confident: 0
+      },
+      filterText: ''
     }
   },
   computed: {
     currentCard() {
-      return this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte zurück oder null
+      return this.filteredCards[this.currentIndex] || null // Returns current card or null
     }
   },
   methods: {
-    async fetchCards() {
-      try {
-        const response = await fetch('http://localhost:3001/cards') // URL zu deiner API
-        const data = await response.json()
-        this.cards = data // Setze alle Karten
+    fetchCards() {
+      // Fetch cards from the API
+      fetch('http://localhost:3001/cards')
+        .then((response) => response.json())
+        .then((data) => {
+          this.cards = data // Store fetched cards
+          this.filteredCards = this.cards // Set the filtered cards
+          this.updateCounts() // Update the counts after fetching cards
+        })
+        .catch((error) => {
+          console.error('Error fetching cards:', error)
+        })
+    },
+    updateCounts() {
+      const currentDate = new Date()
 
-        // Hole die Details für jedes Modul, Tool und Thema
-        for (let card of this.cards) {
-          const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
-            fetch(`http://localhost:3001/modules/${card.moduleId}`),
-            fetch(`http://localhost:3001/tools/${card.toolId}`),
-            fetch(`http://localhost:3001/topics/${card.topicId}`)
-          ])
+      // Get the start of the week and month
+      const weekStart = new Date(currentDate)
+      weekStart.setDate(currentDate.getDate() - currentDate.getDay()) // Set to start of the week
+      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) // Start of the month
 
-          const moduleData = await moduleResponse.json()
-          const toolData = await toolResponse.json()
-          const topicData = await topicResponse.json()
+      // Reset counts
+      this.counts.total = this.cards.length
+      this.counts.today = 0
+      this.counts.week = 0
+      this.counts.month = 0
+      this.counts.reviewNeeded = 0
+      this.counts.confident = 0
 
-          // Füge die Module, Tools und Themen zu jeder Karte hinzu
-          card.module = moduleData
-          card.tool = toolData
-          card.topic = topicData
+      // Loop through cards and calculate counts
+      this.cards.forEach((card) => {
+        const cardDate = new Date(card.date_last_practiced)
+
+        // Count cards practiced today
+        if (cardDate.toDateString() === currentDate.toDateString()) {
+          this.counts.today++
         }
 
-        this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
-      } catch (error) {
-        console.error('Fehler beim Abrufen der Karten:', error)
-      }
-    },
-    async fetchCategories() {
-      // API-Anfragen, um Module, Tools und Themen zu laden
-      const modulesResponse = await fetch('http://localhost:3001/modules')
-      const toolsResponse = await fetch('http://localhost:3001/tools')
-      const topicsResponse = await fetch('http://localhost:3001/topics')
+        // Count cards practiced this week
+        if (cardDate >= weekStart) {
+          this.counts.week++
+        }
 
-      this.modules = await modulesResponse.json()
-      this.tools = await toolsResponse.json()
-      this.topics = await topicsResponse.json()
-    },
-    setActiveTab(index) {
-      this.currentTab = index // Setze den aktuellen Tab
-    },
-    applyFilter() {
-      if (this.selectedFilter === 'all') {
-        this.filteredCards = this.cards // Alle Karten anzeigen
-      } else {
-        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter) // Gefilterte Karten
-      }
-      this.currentIndex = 0 // Setze den Index zurück
-      this.isFlipped = false // Setze den Zustand für das Umdrehen der Karte zurück
-    },
-    updateCurrentCard() {
-      this.currentIndex = 0 // Setze den Index zurück
+        // Count cards practiced this month
+        if (cardDate >= monthStart) {
+          this.counts.month++
+        }
 
-      // Filtere die Karten basierend auf den ausgewählten IDs
-      this.filteredCards = this.cards.filter((card) => {
-        const matchesModule = this.selectedModule ? card.moduleId === this.selectedModule : true
-        const matchesTool = this.selectedTool ? card.toolId === this.selectedTool : true
-        const matchesTopic = this.selectedTopic ? card.topicId === this.selectedTopic : true
-
-        return matchesModule && matchesTool && matchesTopic
+        // Count by card status
+        if (card.status === 'review needed') {
+          this.counts.reviewNeeded++
+        } else if (card.status === 'confident') {
+          this.counts.confident++
+        }
       })
     },
-    flipCard() {
-      this.isFlipped = !this.isFlipped // Umdrehen der Karte
+    filterBy(period) {
+      const currentDate = new Date()
+      let filterCondition = null
+
+      switch (period) {
+        case 'today':
+          filterCondition = (cardDate) => cardDate.toDateString() === currentDate.toDateString()
+          this.filterText = 'Practiced Today'
+          break
+        case 'week':
+          const weekStart = new Date(currentDate)
+          weekStart.setDate(currentDate.getDate() - currentDate.getDay())
+          filterCondition = (cardDate) => cardDate >= weekStart
+          this.filterText = 'Practiced This Week'
+          break
+        case 'month':
+          const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+          filterCondition = (cardDate) => cardDate >= monthStart
+          this.filterText = 'Practiced This Month'
+          break
+      }
+
+      if (filterCondition) {
+        this.filteredCards = this.cards.filter((card) => {
+          const cardDate = new Date(card.date_last_practiced)
+          return filterCondition(cardDate)
+        })
+      }
     },
-    updateCardStatus() {
-      if (this.currentCard) {
-        this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
-        // Hier kannst du auch eine API-Anfrage hinzufügen, um den Status in der Datenbank zu aktualisieren
-        console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
+    filterByStatus(status) {
+      this.filteredCards = this.cards.filter((card) => card.status === status)
+
+      if (status === 'review needed') {
+        this.filterText = 'Cards Needing Review'
+      } else if (status === 'confident') {
+        this.filterText = 'Confident Cards'
       }
     }
   },
   mounted() {
-    this.fetchCards() // Lade die Karten
-    this.fetchCategories() // Lade die Module, Tools und Themen
+    this.fetchCards() // Load cards on component mount
   }
 }
 </script>
