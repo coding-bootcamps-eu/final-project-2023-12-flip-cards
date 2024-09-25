@@ -42,10 +42,13 @@ a,
   --blush: #db5b7a;
   --bittersweet: #ff6f61;
   --peach-light-orange: #fdba74;
+  --champagne: #fde7ce;
+  --antique-white: #fdf0e0;
   --white: #ffffff;
   --very-dark-gray: #111827;
   --charcoal-gray: #303030;
   --light-gray: #e5e7eb;
+  --pale-purple: #eae0f7;
 }
 
 body {
@@ -54,7 +57,7 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: var(--light-gray); /* Optional: Default background */
+  background-color: var(--white); /* Optional: Default background */
 }
 
 /* New Header and Nav Styles */
