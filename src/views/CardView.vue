@@ -49,15 +49,20 @@
         <div class="card-body">
           <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
         </div>
+        <div class="card-footer">
+          <p><strong>Status:</strong> {{ currentCard.status }}</p>
+        </div>
       </div>
 
       <div class="card-face card-back">
-        <div class="card-body">
-          <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
-        </div>
-        <div class="card-footer">
-          <p><strong>Status:</strong> {{ currentCard.status }}</p>
-          <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
+        <div class="card-header">
+          <h3>{{ currentCard.title }}</h3>
+          <div class="card-body">
+            <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
+          </div>
+          <div class="card-footer">
+            <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -123,26 +128,17 @@ export default {
       selectedModule: null,
       selectedTool: null,
       selectedTopic: null,
-      modules: [], // Array for Modules
-      tools: [], // Array for Tools
-      topics: [], // Array for Topics
-      availableTools: [], // Available Tools based on selected Module
-      availableTopics: [], // Available Topics based on selected Tool
-      currentTab: 0,
-      counts: {
-        total: 0,
-        today: 0,
-        week: 0,
-        month: 0,
-        reviewNeeded: 0,
-        confident: 0
-      },
-      filterText: ''
+      modules: [], // Array für Module
+      tools: [], // Array für Tools
+      topics: [], // Array für Themen
+      availableTools: [], // Verfügbare Tools basierend auf dem ausgewählten Modul
+      availableTopics: [], // Verfügbare Themen basierend auf dem ausgewählten Tool
+      currentTab: 0 // Aktueller Tab-Index
     }
   },
   computed: {
     currentCard() {
-      return this.filteredCards[this.currentIndex] || null // Returns current card or null
+      return this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte oder null zurück
     }
   },
   methods: {
@@ -150,11 +146,29 @@ export default {
       try {
         const response = await fetch('http://localhost:3001/cards') // URL zu deiner API
         const data = await response.json()
-        this.cards = data // Store fetched cards
-        this.filteredCards = this.cards // Set the filtered cards
-        this.updateCounts() // Update the counts after fetching cards
+        this.cards = data // Setze alle Karten
+
+        // Hole die Details für jedes Modul, Tool und Thema
+        for (let card of this.cards) {
+          const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
+            fetch(`http://localhost:3001/modules/${card.moduleId}`),
+            fetch(`http://localhost:3001/tools/${card.toolId}`),
+            fetch(`http://localhost:3001/topics/${card.topicId}`)
+          ])
+
+          const moduleData = await moduleResponse.json()
+          const toolData = await toolResponse.json()
+          const topicData = await topicResponse.json()
+
+          // Füge die Module, Tools und Themen zu jeder Karte hinzu
+          card.module = moduleData
+          card.tool = toolData
+          card.topic = topicData
+        }
+
+        this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
       } catch (error) {
-        console.error('Error fetching cards:', error)
+        console.error('Fehler beim Abrufen der Karten:', error)
       }
     },
     async fetchCategories() {
@@ -167,31 +181,37 @@ export default {
       this.tools = await toolsResponse.json()
       this.topics = await topicsResponse.json()
     },
-    setActiveTab(index) {
-      this.currentTab = index
+    applyFilter() {
+      if (this.selectedFilter === 'all') {
+        this.filteredCards = this.cards // Alle Karten anzeigen
+      } else {
+        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter) // Gefilterte Karten
+      }
+      this.currentIndex = 0 // Setze den Index zurück
+      this.isFlipped = false // Setze den Zustand für das Umdrehen der Karte zurück
     },
     updateAvailableTools() {
-      // Filter available tools based on selected module
+      // Filtere die verfügbaren Tools basierend auf dem ausgewählten Modul
       if (this.selectedModule) {
         this.availableTools = this.tools.filter((tool) => tool.moduleId === this.selectedModule)
       } else {
-        this.availableTools = this.tools // Show all tools if no module is selected
+        this.availableTools = this.tools // Alle Tools anzeigen, wenn kein Modul ausgewählt ist
       }
-      this.selectedTool = null // Reset selected tool
-      this.updateAvailableTopics() // Update available topics
+      this.selectedTool = null // Setze den ausgewählten Tool zurück
+      this.updateAvailableTopics() // Aktualisiere die verfügbaren Themen
     },
     updateAvailableTopics() {
-      // Filter available topics based on selected tool
+      // Filtere die verfügbaren Themen basierend auf dem ausgewählten Tool
       if (this.selectedTool) {
         this.availableTopics = this.topics.filter((topic) => topic.toolId === this.selectedTool)
       } else {
-        this.availableTopics = this.topics // Show all topics if no tool is selected
+        this.availableTopics = this.topics // Alle Themen anzeigen, wenn kein Tool ausgewählt ist
       }
     },
     updateCurrentCard() {
-      this.currentIndex = 0 // Reset the index
+      this.currentIndex = 0 // Setze den Index zurück
 
-      // Filter cards based on selected IDs
+      // Filtere die Karten basierend auf den ausgewählten IDs
       this.filteredCards = this.cards.filter(
         (card) =>
           (!this.selectedModule || card.moduleId === this.selectedModule) &&
@@ -199,63 +219,20 @@ export default {
           (!this.selectedTopic || card.topicId === this.selectedTopic)
       )
     },
-    updateCounts() {
-      const currentDate = new Date()
-
-      // Get the start of the week and month
-      const weekStart = new Date(currentDate)
-      weekStart.setDate(currentDate.getDate() - currentDate.getDay()) // Set to start of the week
-      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) // Start of the month
-
-      // Reset counts
-      this.counts.total = this.cards.length
-      this.counts.today = 0
-      this.counts.week = 0
-      this.counts.month = 0
-      this.counts.reviewNeeded = 0
-      this.counts.confident = 0
-
-      // Loop through cards and calculate counts
-      this.cards.forEach((card) => {
-        const cardDate = new Date(card.date_last_practiced)
-
-        // Count cards practiced today
-        if (cardDate.toDateString() === currentDate.toDateString()) {
-          this.counts.today++
-        }
-
-        // Count cards practiced this week
-        if (cardDate >= weekStart) {
-          this.counts.week++
-        }
-
-        // Count cards practiced this month
-        if (cardDate >= monthStart) {
-          this.counts.month++
-        }
-
-        // Count by card status
-        if (card.status === 'review needed') {
-          this.counts.reviewNeeded++
-        } else if (card.status === 'confident') {
-          this.counts.confident++
-        }
-      })
-    },
     flipCard() {
-      this.isFlipped = !this.isFlipped // Flip the card
+      this.isFlipped = !this.isFlipped // Umdrehen der Karte
     },
     updateCardStatus() {
       if (this.currentCard) {
-        this.currentCard.status = this.newStatus // Update the status of the current card
-        // Here you can also add an API request to update the status in the database
+        this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
+        // Hier kannst du auch eine API-Anfrage hinzufügen, um den Status in der Datenbank zu aktualisieren
         console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
       }
     }
   },
   mounted() {
-    this.fetchCards() // Load the cards when the component is mounted
-    this.fetchCategories() // Load modules, tools, and topics
+    this.fetchCards() // Lade die Karten beim Mounten der Komponente
+    this.fetchCategories() // Lade Module, Tools und Themen
   }
 }
 </script>
@@ -292,20 +269,21 @@ export default {
 
 .tabs {
   display: flex; /* Flexbox für die Registerkarten */
-  margin-bottom: -20px; /* Negative Margin, um die Karte zu überlappen */
 }
 
 .tab {
   display: inline-block;
+  height: 370px;
   padding: 0.7em 2em; /* Innenabstand */
   color: var(--white); /* Schriftfarbe */
   background-color: var(--vibrant-purple); /* Hintergrundfarbe */
   border: 1px solid white;
   border-radius: 30px 30px 0 0; /* Nur oben gerundet */
-  margin-right: -5px; /* Überlappung der Registerkarten */
+  margin-right: -20px; /* Überlappung der Registerkarten */
   cursor: pointer; /* Zeiger-Cursor */
   transition: background-color 0.3s; /* Übergangseffekte */
-  width: 180px;
+  position: relative;
+  z-index: 2;
 }
 
 /* Dropdown-Stil */
@@ -322,15 +300,16 @@ export default {
 
 /* Karte */
 .card {
-  width: 530px; /* Breite der Karte */
+  display: flex;
   height: 300px; /* Höhe der Karte */
   perspective: 1000px; /* Perspektive für 3D-Effekt */
   cursor: pointer; /* Zeiger-Cursor */
   position: relative; /* Positionierung für die Karte */
-  margin-top: -30px; /* Negative Margin, um die Karte nach oben zu verschieben */
-  z-index: 0; /* Niedrigerer z-index, damit die Karte hinter den Tabs liegt */
-  box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.4);
+  margin-top: -300px; /* Negative Margin, um die Karte nach oben zu verschieben */
+  z-index: 2; /* Niedrigerer z-index, damit die Karte hinter den Tabs liegt */
+  box-shadow: 15px 1px 15px 1px rgba(0, 0, 0, 0.6);
 }
+
 .card-face {
   position: absolute;
   width: 100%;
@@ -340,25 +319,33 @@ export default {
   border: 2px solid var(--vibrant-purple);
 }
 
+.card-front,
+.card-back {
+  align-items: center; /* Inhalte horizontal zentrieren */
+  padding: 1rem; /* Innenabstand */
+}
+
 .card-front {
-  background-color: var(--thistle);
-  color: var(--white);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-evenly; /* Inhalte in der Mitte zentrieren */
+  background-color: var(--thistle);
+  color: black;
   padding: 1rem;
 }
 
 .card-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* Inhalte in der Mitte zentrieren */
   background-color: var(--peach-light-orange);
   color: var(--white);
   transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   padding: 1rem;
+}
+
+.card-header {
+  text-decoration: underline;
 }
 
 .card.flipped .card-front {
