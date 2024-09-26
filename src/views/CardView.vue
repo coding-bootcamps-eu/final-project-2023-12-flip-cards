@@ -39,6 +39,13 @@
         </span>
       </div>
     </div>
+    <button
+      class="nav-arrow right-arrow"
+      @click="nextCard"
+      :disabled="currentIndex === filteredCards.length - 1"
+    >
+      &#9654;
+    </button>
 
     <!-- Karte anzeigen -->
     <div v-if="currentCard" class="card" :class="{ flipped: isFlipped }" @click="flipCard">
@@ -79,6 +86,10 @@
       </select>
     </div>
 
+    <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
+      &#9664;
+    </button>
+
     <!-- Status Update Radio Buttons -->
     <div class="status-update">
       <h4>Update Card Status:</h4>
@@ -102,7 +113,7 @@
 
     <!-- Footer -->
     <footer>
-      <FooterComponent msg="Footer component" />
+      <FooterComponent msg="Cooding Bootcamps Europe" />
     </footer>
   </div>
 </template>
