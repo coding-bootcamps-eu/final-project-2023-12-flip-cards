@@ -161,22 +161,25 @@ export default {
 
         // Hole die Details für jedes Modul, Tool und Thema
         for (let card of this.cards) {
-          const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
-            fetch(`http://localhost:3001/modules/${card.moduleId}`),
-            fetch(`http://localhost:3001/tools/${card.toolId}`),
-            fetch(`http://localhost:3001/topics/${card.topicId}`)
-          ])
+          if (card.module && card.tool && card.topic) {
+            const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
+              fetch(`http://localhost:3001/modules/${card.module.id}`),
+              fetch(`http://localhost:3001/tools/${card.tool.id}`),
+              fetch(`http://localhost:3001/topics/${card.topic.id}`)
+            ])
 
-          const moduleData = await moduleResponse.json()
-          const toolData = await toolResponse.json()
-          const topicData = await topicResponse.json()
+            if (moduleResponse.ok && toolResponse.ok && topicResponse.ok) {
+              const moduleData = await moduleResponse.json()
+              const toolData = await toolResponse.json()
+              const topicData = await topicsResponse.json()
 
-          // Füge die Module, Tools und Themen zu jeder Karte hinzu
-          card.module = moduleData
-          card.tool = toolData
-          card.topic = topicData
+              // Füge die Module, Tools und Themen zu jeder Karte hinzu
+              card.module = moduleData
+              card.tool = toolData
+              card.topic = topicData
+            }
+          }
         }
-
         this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
       } catch (error) {
         console.error('Fehler beim Abrufen der Karten:', error)
@@ -186,11 +189,11 @@ export default {
       // API-Anfragen, um Module, Tools und Themen zu laden
       const modulesResponse = await fetch('http://localhost:3001/modules')
       const toolsResponse = await fetch('http://localhost:3001/tools')
-      const topicsResponse = await fetch('http://localhost:3001/topics')
+      const topicResponse = await fetch('http://localhost:3001/topics')
 
       this.modules = await modulesResponse.json()
       this.tools = await toolsResponse.json()
-      this.topics = await topicsResponse.json()
+      this.topics = await topicResponse.json()
     },
     applyFilter() {
       if (this.selectedFilter === 'all') {
