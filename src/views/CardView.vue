@@ -39,12 +39,9 @@
         </span>
       </div>
     </div>
-    <button
-      class="nav-arrow right-arrow"
-      @click="nextCard"
-      :disabled="currentIndex === filteredCards.length - 1"
-    >
-      &#9654;
+
+    <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
+      &#9664;
     </button>
 
     <!-- Karte anzeigen -->
@@ -86,8 +83,12 @@
       </select>
     </div>
 
-    <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
-      &#9664;
+    <button
+      class="nav-arrow right-arrow"
+      @click="nextCard"
+      :disabled="currentIndex === filteredCards.length - 1"
+    >
+      &#9654;
     </button>
 
     <!-- Status Update Radio Buttons -->
@@ -241,6 +242,16 @@ export default {
         this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
         // Hier kannst du auch eine API-Anfrage hinzufügen, um den Status in der Datenbank zu aktualisieren
         console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
+      }
+    },
+    prevCard() {
+      if (this.currentIndex > 0) {
+        this.currentIndex-- // Gehe zur vorherigen Karte
+      }
+    },
+    nextCard() {
+      if (this.currentIndex < this.filteredCards.length - 1) {
+        this.currentIndex++ // Gehe zur nächsten Karte
       }
     }
   },
