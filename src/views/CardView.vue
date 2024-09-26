@@ -192,6 +192,19 @@ export default {
       this.tools = await toolsResponse.json()
       this.topics = await topicsResponse.json()
     },
+    prevCard() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--
+        this.isFlipped = false // Setze den Zustand zurück, wenn zur vorherigen Karte gewechselt wird
+      }
+    },
+    nextCard() {
+      if (this.currentIndex < this.filteredCards.length - 1) {
+        this.currentIndex++
+        this.isFlipped = false // Setze den Zustand zurück, wenn zur nächsten Karte gewechselt wird
+      }
+    },
+
     applyFilter() {
       if (this.selectedFilter === 'all') {
         this.filteredCards = this.cards // Alle Karten anzeigen
