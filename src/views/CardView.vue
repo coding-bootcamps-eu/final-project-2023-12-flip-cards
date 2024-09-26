@@ -338,7 +338,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly; /* Inhalte in der Mitte zentrieren */
-  background-color: var(--peach-light-orange);
+  background-color: var(--champagne);
   color: var(--white);
   transform: rotateY(180deg);
   padding: 1rem;
