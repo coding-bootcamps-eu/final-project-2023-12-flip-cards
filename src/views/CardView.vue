@@ -171,7 +171,7 @@ export default {
             if (moduleResponse.ok && toolResponse.ok && topicResponse.ok) {
               const moduleData = await moduleResponse.json()
               const toolData = await toolResponse.json()
-              const topicData = await topicsResponse.json()
+              const topicData = await topicResponse.json()
 
               // Füge die Module, Tools und Themen zu jeder Karte hinzu
               card.module = moduleData
