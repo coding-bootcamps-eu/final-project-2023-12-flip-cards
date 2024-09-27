@@ -64,9 +64,17 @@
       </div>
     </div>
 
+    <button
+      class="nav-arrow right-arrow"
+      @click="nextCard"
+      :disabled="currentIndex === filteredCards.length - 1"
+    >
+      &#9654;
+    </button>
+
     <!-- Filter Dropdown -->
     <div class="filter-section">
-      <label for="filter">Filter Cards:</label>
+      <label for="filter">Select stack:</label>
       <select id="filter" v-model="selectedFilter" @change="applyFilter">
         <option value="all">All</option>
         <option value="new">New</option>
@@ -76,17 +84,9 @@
       </select>
     </div>
 
-    <button
-      class="nav-arrow right-arrow"
-      @click="nextCard"
-      :disabled="currentIndex === filteredCards.length - 1"
-    >
-      &#9654;
-    </button>
-
     <!-- Status Update Radio Buttons -->
     <div class="status-update">
-      <h4>Update Card Status:</h4>
+      <h4>Move card to stack</h4>
       <label>
         <input type="radio" v-model="newStatus" value="new" @change="updateCardStatus" />
         New
@@ -141,7 +141,6 @@ export default {
   computed: {
     currentCard() {
       const card = this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte oder null zurück
-      console.log('Aktuelle Karte:', card) // Debugging
       return card
     }
   },
@@ -175,7 +174,7 @@ export default {
         this.updateCurrentCard()
       } catch (error) {
         console.error('Fehler:', error)
-        // Optional: Benutzerbenachrichtigung hinzufügen
+        // Benutzerbenachrichtigung hinzufügen??
       }
     },
     async fetchCategories() {
@@ -234,8 +233,6 @@ export default {
 
       // Setze den aktuellen Index auf die erste Karte im gefilterten Array
       this.currentIndex = this.filteredCards.length > 0 ? 0 : -1 // -1, wenn keine Karten vorhanden sind
-
-      console.log('Gefilterte Karten:', this.filteredCard) // Sollte jetzt eine Karte ausgeben
     },
     flipCard() {
       this.isFlipped = !this.isFlipped // Umdrehen der Karte
@@ -293,6 +290,7 @@ export default {
 
 .tab-container {
   position: relative; /* Positionierung für die Tabs */
+  margin-top: 2rem;
   z-index: 1; /* Höherer z-index für die Tabs */
 }
 
@@ -414,7 +412,7 @@ export default {
 
 .filter-section {
   margin-top: 2rem;
-  margin-left: 1rem;
+  text-align: center;
 }
 
 .dropdown-container {
