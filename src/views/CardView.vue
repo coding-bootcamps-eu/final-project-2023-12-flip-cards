@@ -460,4 +460,48 @@ export default {
     display: none;
   }
 }
+
+/* Responsive Design for Mobile Landscape View */
+@media (max-width: 600px) and (orientation: landscape) {
+  header,
+  .dropdown-container,
+  .filter-section,
+  .status-update {
+    display: none; /* Hide these sections */
+  }
+
+  .card-container {
+    height: 100vh; /* Full height for the card container */
+    justify-content: center; /* Center the card vertically */
+    align-items: center; /* Center the card horizontally */
+    position: relative; /* Allow for absolute positioning of buttons */
+  }
+
+  .card {
+    width: 90vw; /* Make the card width responsive */
+    height: 60vh; /* Set height of the card */
+    margin: 0; /* Remove margins */
+    box-shadow: none; /* Remove shadow for a cleaner look */
+  }
+
+  .nav-arrow {
+    font-size: 2rem; /* Increase arrow size */
+    position: absolute; /* Position arrows relative to card */
+    top: 50%;
+    transform: translateY(-50%); /* Center arrows vertically */
+  }
+
+  .left-arrow {
+    left: 20px; /* Position left arrow */
+  }
+
+  .right-arrow {
+    right: 20px; /* Position right arrow */
+  }
+
+  .nav-arrow:disabled {
+    color: #ccc; /* Disabled button styling */
+    cursor: not-allowed; /* Change cursor for disabled state */
+  }
+}
 </style>

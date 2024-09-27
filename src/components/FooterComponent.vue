@@ -18,7 +18,7 @@ export default {
 div {
   border-radius: 25px;
   background-color: var(--vibrant-purple);
-  color: var(--white);
+  color: white;
   text-align: center;
 }
 
