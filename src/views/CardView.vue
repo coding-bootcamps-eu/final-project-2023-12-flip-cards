@@ -47,13 +47,20 @@
     <!-- Karte anzeigen -->
     <div v-if="currentCard" class="card" :class="{ flipped: isFlipped }" @click="flipCard">
       <div class="card-face card-front">
+        <p v-if="currentCard">{{ currentCard.toolName }}</p>
         <h3>{{ currentCard.title }}</h3>
-        <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
+        <p>{{ currentCard.text_1 }}</p>
+        <div class="card-footer">
+          <p><strong>This card is currently on stack:</strong> {{ currentCard.status }}</p>
+        </div>
       </div>
       <div class="card-face card-back">
-        <h3>{{ currentCard.title }}</h3>
-        <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
-        <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
+        <p><strong>Tool:</strong> {{ currentCard.tool }}</p>
+        <h3>Title: {{ currentCard.title }}</h3>
+        <p>{{ currentCard.text_2 }}</p>
+        <p>
+          <strong>You have practised this card {{ currentCard.times_practiced }} times!</strong>
+        </p>
       </div>
     </div>
 
@@ -81,16 +88,16 @@
     <div class="status-update">
       <h4>Update Card Status:</h4>
       <label>
+        <input type="radio" v-model="newStatus" value="new" @change="updateCardStatus" />
+        New
+      </label>
+      <label>
         <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
         Review Needed
       </label>
       <label>
         <input type="radio" v-model="newStatus" value="confident" @change="updateCardStatus" />
         Confident
-      </label>
-      <label>
-        <input type="radio" v-model="newStatus" value="new" @change="updateCardStatus" />
-        New
       </label>
       <label>
         <input type="radio" v-model="newStatus" value="archived" @change="updateCardStatus" />
@@ -133,40 +140,42 @@ export default {
   },
   computed: {
     currentCard() {
-      return this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte oder null zurück
+      const card = this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte oder null zurück
+      console.log('Aktuelle Karte:', card) // Debugging
+      return card
     }
   },
   methods: {
     async fetchCards() {
       try {
-        const response = await fetch('http://localhost:3001/cards')
-        const data = await response.json()
-        this.cards = data // Setze alle Karten
+        // Abrufen der Karten
+        const cardResponse = await fetch('http://localhost:3001/cards') // Ersetze durch die richtige URL
+        // Abrufen der Tools
+        const toolResponse = await fetch('http://localhost:3001/tools') // Ersetze durch die richtige URL
 
-        // Hole die Details für jedes Modul, Tool und Thema
-        for (let card of this.cards) {
-          if (card.module && card.tool && card.topic) {
-            const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
-              fetch(`http://localhost:3001/modules/${card.module.id}`),
-              fetch(`http://localhost:3001/tools/${card.tool.id}`),
-              fetch(`http://localhost:3001/topics/${card.topic.id}`)
-            ])
-
-            if (moduleResponse.ok && toolResponse.ok && topicResponse.ok) {
-              const moduleData = await moduleResponse.json()
-              const toolData = await toolResponse.json()
-              const topicData = await topicResponse.json()
-
-              // Füge die Module, Tools und Themen zu jeder Karte hinzu
-              card.module = moduleData
-              card.tool = toolData
-              card.topic = topicData
-            }
-          }
+        // Überprüfen, ob die Antworten OK sind
+        if (!cardResponse.ok || !toolResponse.ok) {
+          throw new Error('Fehler beim Abrufen der Daten')
         }
-        this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
+
+        // Konvertiere die Antworten in JSON
+        const cards = await cardResponse.json()
+        const tools = await toolResponse.json()
+
+        // Füge die Toolnamen zu den Karten hinzu
+        this.cards = cards.map((card) => {
+          const tool = tools.find((tool) => tool.id === card.toolId)
+          return {
+            ...card,
+            toolName: tool ? tool.name : 'Unbekannt' // Füge den Toolnamen hinzu
+          }
+        })
+
+        // Aktualisiere die aktuelle Karte
+        this.updateCurrentCard()
       } catch (error) {
-        console.error('Fehler beim Abrufen der Karten:', error)
+        console.error('Fehler:', error)
+        // Optional: Benutzerbenachrichtigung hinzufügen
       }
     },
     async fetchCategories() {
@@ -210,7 +219,6 @@ export default {
       this.updateCurrentCard() // Aktualisiere die angezeigten Karten
     },*/
     updateCurrentCard() {
-      this.currentIndex = 0 // Setze den Index zurück
       // Filtere die Karten basierend auf den ausgewählten IDs
       this.filteredCards = this.cards.filter(
         (card) =>
@@ -223,6 +231,11 @@ export default {
       if (this.filteredCards.length === 0) {
         this.filteredCards = this.cards
       }
+
+      // Setze den aktuellen Index auf die erste Karte im gefilterten Array
+      this.currentIndex = this.filteredCards.length > 0 ? 0 : -1 // -1, wenn keine Karten vorhanden sind
+
+      console.log('Gefilterte Karten:', this.filteredCard) // Sollte jetzt eine Karte ausgeben
     },
     flipCard() {
       this.isFlipped = !this.isFlipped // Umdrehen der Karte
@@ -243,16 +256,6 @@ export default {
       if (this.currentCard) {
         this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
         console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
-      }
-    },
-    prevCard() {
-      if (this.currentIndex > 0) {
-        this.currentIndex-- // Gehe zur vorherigen Karte
-      }
-    },
-    nextCard() {
-      if (this.currentIndex < this.filteredCards.length - 1) {
-        this.currentIndex++ // Gehe zur nächsten Karte
       }
     }
   },
@@ -365,7 +368,7 @@ export default {
   flex-direction: column;
   justify-content: space-evenly; /* Inhalte in der Mitte zentrieren */
   background-color: var(--champagne);
-  color: var(--white);
+  color: var(--black);
   transform: rotateY(180deg);
   padding: 1rem;
 }
