@@ -1,8 +1,7 @@
 <template>
   <div>
     <!-- Single root element -->
-    <h1>This is the main component</h1>
-    <CardComponent msg="Card component" />
+    <CardComponent v-if="showCard" msg="Card component" />
   </div>
 </template>
 
@@ -11,6 +10,14 @@ import CardComponent from '@/components/CardComponent.vue'
 export default {
   components: {
     CardComponent
+  },
+
+  props: {
+    showCard: {
+      // Add a prop to control the visibility of the CardComponent
+      type: Boolean,
+      default: true // Default to true, so the card shows unless told otherwise
+    }
   },
   data() {
     return {}
