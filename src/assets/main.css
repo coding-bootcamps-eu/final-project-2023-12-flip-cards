@@ -1,63 +1,26 @@
-@import './base.css';
+@import './base.css'; /* Import the base styles */
 
+/* Default mobile-first styles */
 #app {
-  max-width: 1280px;
+  max-width: 100%; /* Full width on mobile */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   font-weight: normal;
 }
 
+/* Links and colors */
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: hsla(160, 100%, 37%, 1); /* Green color for links */
   transition: 0.4s;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 62%, 26%, 0.2);
+    background-color: hsla(160, 62%, 26%, 0.2); /* Subtle hover effect */
   }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}
-
-:root {
-  --vibrant-purple: #6a1cc3;
-  --lavender: #b691dd;
-  --thistle: #e4d2f9;
-  --fandango: #b64793;
-  --blush: #db5b7a;
-  --bittersweet: #ff6f61;
-  --peach-light-orange: #fdba74;
-  --champagne: #fde7ce;
-  --antique-white: #fdf0e0;
-  --white: #ffffff;
-  --very-dark-gray: #111827;
-  --charcoal-gray: #303030;
-  --light-gray: #e5e7eb;
-  --pale-purple: #eae0f7;
-}
-
-body {
-  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', 'Noto Color Emoji';
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: var(--white); /* Optional: Default background */
 }
 
 /* New Header and Nav Styles */
@@ -72,7 +35,7 @@ body {
 
 .app-header h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* Default for mobile */
 }
 
 .app-header nav a {
@@ -88,5 +51,35 @@ body {
 
 .app-header nav a.router-link-active {
   font-weight: bold;
-  border-bottom: 2px solid var(--peach-light-orange); /* To indicate active page */
+  border-bottom: 2px solid var(--peach-light-orange);
+}
+
+/* Global font and layout styles */
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--white); /* Background set to white */
+}
+
+/* Larger screens (Desktop or Tablets) */
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+    padding: 0 2rem;
+    max-width: 1280px;
+  }
+
+  /* Adjust header size for larger screens */
+  .app-header h1 {
+    font-size: 2rem; /* Larger title for bigger screens */
+  }
 }
