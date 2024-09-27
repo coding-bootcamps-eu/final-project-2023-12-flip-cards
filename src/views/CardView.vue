@@ -7,38 +7,39 @@
 
     <!-- Tab Container -->
     <div class="tab-container">
-      <div class="tabs">
-        <span class="tab" :class="{ active: currentTab === 0 }">
-          Module:
-          <select v-model="selectedModule" @change="updateAvailableTools">
-            <option value="">Alle</option>
+      <div class="tabs dropdown-container">
+        <span class="tab">
+          <label for="selectedModule">Module:</label>
+          <select id="selectedModule" v-model="selectedModule" @change="updateCurrentCard">
+            <option value="">All</option>
             <option v-for="module in modules" :key="module.id" :value="module.id">
               {{ module.name }}
             </option>
           </select>
         </span>
 
-        <span class="tab" :class="{ active: currentTab === 1 }">
-          Tool:
-          <select v-model="selectedTool" @change="updateAvailableTopics">
-            <option value="">Alle</option>
-            <option v-for="tool in availableTools" :key="tool.id" :value="tool.id">
+        <span class="tab">
+          <label for="selectedTool">Tool:</label>
+          <select id="selectedTool" v-model="selectedTool" @change="updateCurrentCard">
+            <option value="">All</option>
+            <option v-for="tool in tools" :key="tool.id" :value="tool.id">
               {{ tool.name }}
             </option>
           </select>
         </span>
 
-        <span class="tab" :class="{ active: currentTab === 2 }">
-          Topic:
-          <select v-model="selectedTopic">
-            <option value="">Alle</option>
-            <option v-for="topic in availableTopics" :key="topic.id" :value="topic.id">
+        <span class="tab">
+          <label for="selectedTopic">Topic:</label>
+          <select id="selectedTopic" v-model="selectedTopic" @change="updateCurrentCard">
+            <option value="">All</option>
+            <option v-for="topic in topics" :key="topic.id" :value="topic.id">
               {{ topic.name }}
             </option>
           </select>
         </span>
       </div>
     </div>
+
     <button
       class="nav-arrow right-arrow"
       @click="nextCard"
@@ -50,27 +51,13 @@
     <!-- Karte anzeigen -->
     <div v-if="currentCard" class="card" :class="{ flipped: isFlipped }" @click="flipCard">
       <div class="card-face card-front">
-        <div class="card-header">
-          <h3>{{ currentCard.title }}</h3>
-        </div>
-        <div class="card-body">
-          <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
-        </div>
-        <div class="card-footer">
-          <p><strong>Status:</strong> {{ currentCard.status }}</p>
-        </div>
+        <h3>{{ currentCard.title }}</h3>
+        <p><strong>Side 1:</strong> {{ currentCard.text_1 }}</p>
       </div>
-
       <div class="card-face card-back">
-        <div class="card-header">
-          <h3>{{ currentCard.title }}</h3>
-          <div class="card-body">
-            <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
-          </div>
-          <div class="card-footer">
-            <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
-          </div>
-        </div>
+        <h3>{{ currentCard.title }}</h3>
+        <p><strong>Side 2:</strong> {{ currentCard.text_2 }}</p>
+        <p><strong>Times Practiced:</strong> {{ currentCard.times_practiced }}</p>
       </div>
     </div>
 
@@ -113,7 +100,7 @@
 
     <!-- Footer -->
     <footer>
-      <FooterComponent msg="Cooding Bootcamps Europe" />
+      <FooterComponent msg="Coding Bootcamps Europe" />
     </footer>
   </div>
 </template>
@@ -130,21 +117,18 @@ export default {
   },
   data() {
     return {
-      filteredCards: [],
       cards: [],
-      isFlipped: false,
-      selectedFilter: 'all',
-      newStatus: '',
-      currentIndex: 0,
-      selectedModule: null,
-      selectedTool: null,
-      selectedTopic: null,
       modules: [], // Array für Module
       tools: [], // Array für Tools
       topics: [], // Array für Themen
-      availableTools: [], // Verfügbare Tools basierend auf dem ausgewählten Modul
-      availableTopics: [], // Verfügbare Themen basierend auf dem ausgewählten Tool
-      currentTab: 0 // Aktueller Tab-Index
+      selectedModule: null,
+      selectedTool: null,
+      selectedTopic: null,
+      currentIndex: 0,
+      isFlipped: false,
+      newStatus: '',
+      selectedFilter: 'all',
+      filteredCards: []
     }
   },
   computed: {
@@ -155,42 +139,85 @@ export default {
   methods: {
     async fetchCards() {
       try {
-        const response = await fetch('http://localhost:3001/cards') // URL zu deiner API
+        const response = await fetch('http://localhost:3001/cards')
         const data = await response.json()
         this.cards = data // Setze alle Karten
-
-        // Hole die Details für jedes Modul, Tool und Thema
-        for (let card of this.cards) {
-          const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
-            fetch(`http://localhost:3001/modules/${card.moduleId}`),
-            fetch(`http://localhost:3001/tools/${card.toolId}`),
-            fetch(`http://localhost:3001/topics/${card.topicId}`)
-          ])
-
-          const moduleData = await moduleResponse.json()
-          const toolData = await toolResponse.json()
-          const topicData = await topicResponse.json()
-
-          // Füge die Module, Tools und Themen zu jeder Karte hinzu
-          card.module = moduleData
-          card.tool = toolData
-          card.topic = topicData
-        }
-
-        this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
+        console.log('Cards:', this.cards) // Überprüfe die geladenen Karten
+        this.applyFilter() // Wende den Filter an
       } catch (error) {
         console.error('Fehler beim Abrufen der Karten:', error)
       }
     },
     async fetchCategories() {
-      // API-Anfragen, um Module, Tools und Themen zu laden
-      const modulesResponse = await fetch('http://localhost:3001/modules')
-      const toolsResponse = await fetch('http://localhost:3001/tools')
-      const topicsResponse = await fetch('http://localhost:3001/topics')
+      try {
+        const modulesResponse = await fetch('http://localhost:3001/modules')
+        const toolsResponse = await fetch('http://localhost:3001/tools')
+        const topicsResponse = await fetch('http://localhost:3001/topics')
 
-      this.modules = await modulesResponse.json()
-      this.tools = await toolsResponse.json()
-      this.topics = await topicsResponse.json()
+        const modulesData = await modulesResponse.json()
+        const toolsData = await toolsResponse.json()
+        const topicsData = await topicsResponse.json()
+
+        // Setze die Module, Tools und Themen
+        this.modules = modulesData // Hier sollte ein Array von Objekten sein
+        this.tools = toolsData // Hier sollte ein Array von Objekten sein
+        this.topics = topicsData // Hier sollte ein Array von Objekten sein
+
+        // Debugging: Überprüfe die geladenen Daten
+        console.log('Modules:', this.modules)
+        console.log('Tools:', this.tools)
+        console.log('Topics:', this.topics)
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Kategorien:', error)
+      }
+    },
+    applyFilter() {
+      // Filtere die Karten basierend auf dem aktuellen Filter
+      if (this.selectedFilter === 'all') {
+        this.filteredCards = this.cards // Alle Karten anzeigen
+      } else {
+        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter) // Gefilterte Karten
+      }
+      this.currentIndex = 0 // Setze den Index zurück
+      this.isFlipped = false // Setze den Zustand für das Umdrehen der Karte zurück
+    },
+    /*updateAvailableTools() {
+      // Filtere die verfügbaren Tools basierend auf dem ausgewählten Modul
+      if (this.selectedModule) {
+        this.availableTools = this.tools.filter((tool) => tool.moduleId === this.selectedModule)
+      } else {
+        this.availableTools = this.tools // Alle Tools anzeigen
+      }
+      this.selectedTool = null // Setze den ausgewählten Tool zurück
+      this.updateAvailableTopics() // Aktualisiere die verfügbaren Themen
+      this.updateCurrentCard() // Aktualisiere die angezeigten Karten
+    },
+    updateAvailableTopics() {
+      // Filtere die verfügbaren Themen basierend auf dem ausgewählten Tool
+      if (this.selectedTool) {
+        this.availableTopics = this.topics.filter((topic) => topic.toolId === this.selectedTool)
+      } else {
+        this.availableTopics = this.topics // Alle Themen anzeigen
+      }
+      this.updateCurrentCard() // Aktualisiere die angezeigten Karten
+    },*/
+    updateCurrentCard() {
+      this.currentIndex = 0 // Setze den Index zurück
+      // Filtere die Karten basierend auf den ausgewählten IDs
+      this.filteredCards = this.cards.filter(
+        (card) =>
+          (!this.selectedModule || card.moduleId === this.selectedModule) &&
+          (!this.selectedTool || card.toolId === this.selectedTool) &&
+          (!this.selectedTopic || card.topicId === this.selectedTopic)
+      )
+
+      // Wenn keine Karten gefunden wurden, zeige die gesamte Liste an
+      if (this.filteredCards.length === 0) {
+        this.filteredCards = this.cards
+      }
+    },
+    flipCard() {
+      this.isFlipped = !this.isFlipped // Umdrehen der Karte
     },
     prevCard() {
       if (this.currentIndex > 0) {
@@ -204,52 +231,9 @@ export default {
         this.isFlipped = false // Setze den Zustand zurück, wenn zur nächsten Karte gewechselt wird
       }
     },
-
-    applyFilter() {
-      if (this.selectedFilter === 'all') {
-        this.filteredCards = this.cards // Alle Karten anzeigen
-      } else {
-        this.filteredCards = this.cards.filter((card) => card.status === this.selectedFilter) // Gefilterte Karten
-      }
-      this.currentIndex = 0 // Setze den Index zurück
-      this.isFlipped = false // Setze den Zustand für das Umdrehen der Karte zurück
-    },
-    updateAvailableTools() {
-      // Filtere die verfügbaren Tools basierend auf dem ausgewählten Modul
-      if (this.selectedModule) {
-        this.availableTools = this.tools.filter((tool) => tool.moduleId === this.selectedModule)
-      } else {
-        this.availableTools = this.tools // Alle Tools anzeigen, wenn kein Modul ausgewählt ist
-      }
-      this.selectedTool = null // Setze den ausgewählten Tool zurück
-      this.updateAvailableTopics() // Aktualisiere die verfügbaren Themen
-    },
-    updateAvailableTopics() {
-      // Filtere die verfügbaren Themen basierend auf dem ausgewählten Tool
-      if (this.selectedTool) {
-        this.availableTopics = this.topics.filter((topic) => topic.toolId === this.selectedTool)
-      } else {
-        this.availableTopics = this.topics // Alle Themen anzeigen, wenn kein Tool ausgewählt ist
-      }
-    },
-    updateCurrentCard() {
-      this.currentIndex = 0 // Setze den Index zurück
-
-      // Filtere die Karten basierend auf den ausgewählten IDs
-      this.filteredCards = this.cards.filter(
-        (card) =>
-          (!this.selectedModule || card.moduleId === this.selectedModule) &&
-          (!this.selectedTool || card.toolId === this.selectedTool) &&
-          (!this.selectedTopic || card.topicId === this.selectedTopic)
-      )
-    },
-    flipCard() {
-      this.isFlipped = !this.isFlipped // Umdrehen der Karte
-    },
     updateCardStatus() {
       if (this.currentCard) {
         this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
-        // Hier kannst du auch eine API-Anfrage hinzufügen, um den Status in der Datenbank zu aktualisieren
         console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
       }
     }
