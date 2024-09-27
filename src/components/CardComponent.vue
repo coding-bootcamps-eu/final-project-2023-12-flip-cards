@@ -1,17 +1,15 @@
-<template>
-  <h1>This is the card component</h1>
-</template>
+<template><h1>.</h1></template>
 
 <script>
 export default {
   components: {},
   data() {
     return {
-      newCard: "",
-      cards: [],
-    };
-  },
-};
+      newCard: '',
+      cards: []
+    }
+  }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

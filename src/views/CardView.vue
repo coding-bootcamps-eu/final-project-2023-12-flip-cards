@@ -40,12 +40,8 @@
       </div>
     </div>
 
-    <button
-      class="nav-arrow right-arrow"
-      @click="nextCard"
-      :disabled="currentIndex === filteredCards.length - 1"
-    >
-      &#9654;
+    <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
+      &#9664;
     </button>
 
     <!-- Karte anzeigen -->
@@ -73,8 +69,12 @@
       </select>
     </div>
 
-    <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
-      &#9664;
+    <button
+      class="nav-arrow right-arrow"
+      @click="nextCard"
+      :disabled="currentIndex === filteredCards.length - 1"
+    >
+      &#9654;
     </button>
 
     <!-- Status Update Radio Buttons -->
@@ -142,34 +142,42 @@ export default {
         const response = await fetch('http://localhost:3001/cards')
         const data = await response.json()
         this.cards = data // Setze alle Karten
-        console.log('Cards:', this.cards) // Überprüfe die geladenen Karten
-        this.applyFilter() // Wende den Filter an
+
+        // Hole die Details für jedes Modul, Tool und Thema
+        for (let card of this.cards) {
+          if (card.module && card.tool && card.topic) {
+            const [moduleResponse, toolResponse, topicResponse] = await Promise.all([
+              fetch(`http://localhost:3001/modules/${card.module.id}`),
+              fetch(`http://localhost:3001/tools/${card.tool.id}`),
+              fetch(`http://localhost:3001/topics/${card.topic.id}`)
+            ])
+
+            if (moduleResponse.ok && toolResponse.ok && topicResponse.ok) {
+              const moduleData = await moduleResponse.json()
+              const toolData = await toolResponse.json()
+              const topicData = await topicResponse.json()
+
+              // Füge die Module, Tools und Themen zu jeder Karte hinzu
+              card.module = moduleData
+              card.tool = toolData
+              card.topic = topicData
+            }
+          }
+        }
+        this.applyFilter() // Wende den Filter an, um die Karten beim ersten Laden anzuzeigen
       } catch (error) {
         console.error('Fehler beim Abrufen der Karten:', error)
       }
     },
     async fetchCategories() {
-      try {
-        const modulesResponse = await fetch('http://localhost:3001/modules')
-        const toolsResponse = await fetch('http://localhost:3001/tools')
-        const topicsResponse = await fetch('http://localhost:3001/topics')
+      // API-Anfragen, um Module, Tools und Themen zu laden
+      const modulesResponse = await fetch('http://localhost:3001/modules')
+      const toolsResponse = await fetch('http://localhost:3001/tools')
+      const topicResponse = await fetch('http://localhost:3001/topics')
 
-        const modulesData = await modulesResponse.json()
-        const toolsData = await toolsResponse.json()
-        const topicsData = await topicsResponse.json()
-
-        // Setze die Module, Tools und Themen
-        this.modules = modulesData // Hier sollte ein Array von Objekten sein
-        this.tools = toolsData // Hier sollte ein Array von Objekten sein
-        this.topics = topicsData // Hier sollte ein Array von Objekten sein
-
-        // Debugging: Überprüfe die geladenen Daten
-        console.log('Modules:', this.modules)
-        console.log('Tools:', this.tools)
-        console.log('Topics:', this.topics)
-      } catch (error) {
-        console.error('Fehler beim Abrufen der Kategorien:', error)
-      }
+      this.modules = await modulesResponse.json()
+      this.tools = await toolsResponse.json()
+      this.topics = await topicResponse.json()
     },
     applyFilter() {
       // Filtere die Karten basierend auf dem aktuellen Filter
@@ -235,6 +243,16 @@ export default {
       if (this.currentCard) {
         this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
         console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
+      }
+    },
+    prevCard() {
+      if (this.currentIndex > 0) {
+        this.currentIndex-- // Gehe zur vorherigen Karte
+      }
+    },
+    nextCard() {
+      if (this.currentIndex < this.filteredCards.length - 1) {
+        this.currentIndex++ // Gehe zur nächsten Karte
       }
     }
   },

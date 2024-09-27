@@ -35,19 +35,9 @@
         </section>
 
         <section>
-          <h2>Why We Created This App</h2>
-          <p>
-            We believe that active recall and spaced repetition are key to mastering new knowledge.
-            This app provides a simple, effective way to implement those learning techniques,
-            helping users retain information better.
-          </p>
-        </section>
-
-        <section>
           <h2>Contact Us</h2>
           <p>
-            Have feedback or need assistance? Feel free to reach out at
-            <a href="mailto:support@example.com">someone at the Bootcamp :D</a>.
+            Have feedback or need assistance? Feel free to reach out to someone at the Bootcamp.
           </p>
         </section>
       </div>
