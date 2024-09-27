@@ -1,24 +1,20 @@
 <template>
-  <div class="wrapper">
-    <header>
+  <div class="app-container">
+    <header class="header">
       <HeaderComponent title="Home Page" msg="Header component" />
     </header>
 
     <article class="main-layout">
-      <!-- App Name Section, centered vertically -->
-      <section class="app-name">
-        <h1>Flip Card App</h1>
-        <p>Your go-to flashcard app</p>
-        <p>
-          Master your skills with customizable flashcards. Practice anytime, track your progress,
-          and improve!
-        </p>
-        <img :src="imageSrc" alt="A beautiful tent" />
-      </section>
+      <h1>Flip Card App</h1>
+      <p>Your go-to flashcard app</p>
+      <p>
+        Master your skills with customizable flashcards. Practice anytime, track your progress, and
+        improve!
+      </p>
+      <img :src="imageSrc" alt="A beautiful tent" />
     </article>
 
-    <!-- Footer -->
-    <footer>
+    <footer class="footer">
       <FooterComponent msg="Coding Bootcamps Europe" />
     </footer>
   </div>
@@ -30,7 +26,7 @@ import FooterComponent from '@/components/FooterComponent.vue'
 import tentImage from '@/assets/tent.jpg' // Import the image
 
 export default {
-  name: 'Home',
+  name: 'HomeComponent',
   components: {
     HeaderComponent,
     FooterComponent
@@ -44,40 +40,34 @@ export default {
 </script>
 
 <style scoped>
-/* This wrapper takes up the full height of the viewport */
-.wrapper {
+/* Full viewport height for the app container */
+.app-container {
   display: flex;
-  flex-direction: column; /* Arrange children in a column */
+  flex-direction: column;
   height: 100vh; /* Full height of the viewport */
 }
 
-/* Main layout takes up most of the viewport height */
+/* Fixed header at the top */
+.header {
+  flex: 0 0 auto; /* Fixed size, do not grow or shrink */
+}
+
+/* Main layout takes up the remaining space */
 .main-layout {
-  display: flex;
-  flex-direction: column; /* Stack children vertically */
-  align-items: center; /* Center children horizontally */
-  justify-content: flex-start; /* Start from the top */
   flex: 1; /* This section will grow to fill available space */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  justify-content: center; /* Center children vertically */
 }
 
-/* App Name section styling */
-.app-name {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.app-name h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.app-name p {
-  font-size: 1.25rem;
-  color: #555;
+/* Fixed footer at the bottom */
+.footer {
+  flex: 0 0 auto; /* Fixed size, do not grow or shrink */
 }
 
 /* Styling for the image */
-.app-name img {
+.main-layout img {
   max-width: 100%;
   height: auto;
   margin-top: 1rem;
