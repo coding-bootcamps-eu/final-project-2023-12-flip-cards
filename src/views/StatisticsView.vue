@@ -12,9 +12,9 @@
 
         <!-- Display counts for today, this week, this month, and by status -->
         <div class="stat-box">
-          <p><strong>Cards Practiced Today:</strong> {{ counts.today }}</p>
+          <!-- <p><strong>Cards Practiced Today:</strong> {{ counts.today }}</p>
           <p><strong>Cards Practiced This Week:</strong> {{ counts.week }}</p>
-          <p><strong>Cards Practiced This Month:</strong> {{ counts.month }}</p>
+          <p><strong>Cards Practiced This Month:</strong> {{ counts.month }}</p> -->
           <p><strong>Cards Needing Review:</strong> {{ counts.reviewNeeded }}</p>
           <p><strong>Confident Cards:</strong> {{ counts.confident }}</p>
         </div>
