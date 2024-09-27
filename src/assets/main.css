@@ -6,6 +6,10 @@
   margin: 0 auto;
   padding: 1rem;
   font-weight: normal;
+  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  box-sizing: border-box;
+  background-color: var(--white);
 }
 
 /* Links and colors */
@@ -54,28 +58,8 @@ a,
   border-bottom: 2px solid var(--peach-light-orange);
 }
 
-/* Global font and layout styles */
-body {
-  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', 'Noto Color Emoji';
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: var(--white); /* Background set to white */
-}
-
-.app-header {
-  padding: 10px; /* Adjust this value if needed */
-  text-align: center; /* Centering can help align items */
-}
-
 /* Larger screens (Desktop or Tablets) */
 @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
   #app {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two columns for larger screens */

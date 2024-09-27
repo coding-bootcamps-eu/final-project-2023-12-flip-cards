@@ -264,6 +264,16 @@ export default {
 </script>
 
 <style scoped>
+.card-container nav a {
+  color: var(--peach-light-orange); /* Change the link color to peach */
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.card-container nav a:hover {
+  color: var(--white); /* Change color on hover if needed */
+}
+
 .card-container {
   display: flex;
   flex-direction: column;
