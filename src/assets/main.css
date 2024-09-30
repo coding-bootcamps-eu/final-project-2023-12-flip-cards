@@ -4,7 +4,6 @@
 #app {
   max-width: 100%; /* Full width on mobile */
   margin: 0 auto;
-  padding: 1rem;
   font-weight: normal;
   font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
@@ -75,5 +74,45 @@ a,
   }
   footer {
     color: var(--footer-text-color);
+  }
+}
+
+@media only screen and (max-width: 768px) and (orientation: landscape) {
+  /* Hide non-essential elements */
+  header,
+  footer,
+  .dropdown-container,
+  .filter-section,
+  .status-update {
+    display: none; /* Hides these elements */
+  }
+
+  /* Ensure the card container fills the viewport */
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center-align content */
+    justify-content: center; /* Center vertically */
+    height: 100vh; /* Full height of the viewport */
+    padding: 0 10px; /* Prevent content from touching edges */
+  }
+
+  /* Ensure the card is visible and stretches */
+  .card {
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack contents vertically */
+    width: 100%; /* Full width */
+    max-height: 90vh; /* Limit max height */
+    flex-grow: 1; /* Allow card to grow and fill space */
+    overflow: auto; /* Allow scrolling if content exceeds height */
+    margin: 0; /* Reset margin if needed */
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5); /* Optional: Adjust shadow for visibility */
+  }
+
+  /* Style for navigation buttons */
+  .nav-arrow {
+    display: block; /* Show navigation buttons */
+    font-size: 3rem; /* Increase size for touch targets */
+    padding: 10px; /* Padding for better touch area */
   }
 }
