@@ -309,10 +309,49 @@ export default {
       }
     },
     updateCardStatus() {
-      if (this.currentCard) {
-        this.currentCard.status = this.newStatus // Aktualisiere den Status der aktuellen Karte
-        console.log(`Kartenstatus für ${this.currentCard.title} aktualisiert auf ${this.newStatus}`)
+      // Stelle sicher, dass currentCard existiert
+      if (!this.currentCard) {
+        console.error('Keine aktuelle Karte gesetzt')
+        return
       }
+      // Erstelle einen PUT-Request, um den Status in der API zu aktualisieren
+      fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: this.currentCard.id,
+          title: this.currentCard.title,
+          text_1: this.currentCard.text_1,
+          text_2: this.currentCard.text_2,
+          status: this.newStatus,
+          date_last_practiced: this.currentCard.date_last_practiced,
+          times_practiced: this.currentCard.times_practiced,
+          moduleId: this.currentCard.moduleId,
+          toolId: this.currentCard.toolId,
+          topicId: this.currentCard.topicId
+        })
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Fehler beim Aktualisieren des Kartenstatus')
+          }
+          return response.json()
+        })
+        .then((updatedCard) => {
+          console.log('Aktualisierte Karte:', updatedCard)
+          // Aktualisiere die Karte im lokalen Array
+          const index = this.cards.findIndex((card) => card.id === updatedCard.id)
+          if (index !== -1) {
+            this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte im Array
+          }
+          // Aktualisiere die aktuelle Karte
+          this.currentCard = updatedCard // Setze die aktuelle Karte auf die aktualisierte Karte
+        })
+        .catch((error) => {
+          console.error('Fehler:', error)
+        })
     }
   },
   mounted() {
