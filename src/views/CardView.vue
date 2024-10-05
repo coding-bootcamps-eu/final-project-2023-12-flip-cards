@@ -251,30 +251,27 @@ export default {
       this.isFlipped = !this.isFlipped
     },
     async incrementTimesPracticed(cardId) {
-      // Hole die aktuelle Karte aus dem Array
-      const currentCard = this.cards.find((card) => card.id === cardId)
-
-      // Erhöhe die Übungsanzahl um 1
-      currentCard.times_practiced += 1 // Setze den neuen Wert lokal
-
       try {
+        const currentCard = this.cards.find((card) => card.id === cardId)
+
+        if (!currentCard) {
+          console.error('Karte nicht gefunden:', cardId)
+          return // Beende die Funktion, wenn die Karte nicht gefunden wurde
+        }
+
+        // Erhöhe die Übungsanzahl um 1
+        currentCard.times_practiced += 1
+
         const response = await fetch(`http://localhost:3001/cards/${cardId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            id: currentCard.id,
-            title: currentCard.title,
-            text_1: currentCard.text_1,
-            text_2: currentCard.text_2,
-            status: currentCard.status,
-            date_last_practiced: new Date().toISOString(),
-            times_practiced: currentCard.times_practiced,
-            moduleId: currentCard.moduleId,
-            toolId: currentCard.toolId,
-            topicId: currentCard.topicId
-          }) // Sende die gesamte Karte zurück
+            ...currentCard, // Sende die gesamte Karte zurück
+            times_practiced: currentCard.times_practiced, // Aktuelle Übungsanzahl
+            date_last_practiced: new Date().toISOString() // Aktuelles Datum
+          })
         })
 
         if (!response.ok) {
@@ -290,8 +287,8 @@ export default {
           this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte im Array
         }
 
-        // Setze die aktuelle Karte auf die aktualisierte Karte
-        this.currentCardId = updatedCard.id
+        // Setze die aktuelle Karten-ID auf die aktualisierte Karte
+        this.currentCardId = updatedCard.id // Aktualisiere die aktuelle Karten-ID
       } catch (error) {
         console.error('Fehler:', error)
       }
@@ -314,6 +311,7 @@ export default {
         console.error('Keine aktuelle Karte gesetzt')
         return
       }
+
       // Erstelle einen PUT-Request, um den Status in der API zu aktualisieren
       fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
         method: 'PUT',
@@ -321,16 +319,8 @@ export default {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          id: this.currentCard.id,
-          title: this.currentCard.title,
-          text_1: this.currentCard.text_1,
-          text_2: this.currentCard.text_2,
-          status: this.newStatus,
-          date_last_practiced: this.currentCard.date_last_practiced,
-          times_practiced: this.currentCard.times_practiced,
-          moduleId: this.currentCard.moduleId,
-          toolId: this.currentCard.toolId,
-          topicId: this.currentCard.topicId
+          ...this.currentCard, // Behalte alle Felder der aktuellen Karte
+          status: this.newStatus // Setze den neuen Status
         })
       })
         .then((response) => {
@@ -346,8 +336,8 @@ export default {
           if (index !== -1) {
             this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte im Array
           }
-          // Aktualisiere die aktuelle Karte
-          this.currentCard = updatedCard // Setze die aktuelle Karte auf die aktualisierte Karte
+          // Aktualisiere die aktuelle Karten-ID
+          this.currentCardId = updatedCard.id // Setze die aktuelle Karten-ID
         })
         .catch((error) => {
           console.error('Fehler:', error)
