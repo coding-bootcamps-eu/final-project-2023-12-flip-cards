@@ -6,38 +6,36 @@
     </header>
 
     <!-- Tab Container -->
-    <div class="tab-container">
-      <div class="tabs dropdown-container">
-        <span class="tab">
-          <label for="selectedModule">Module:</label>
-          <select id="selectedModule" v-model="selectedModule" @change="updateCurrentCard">
-            <option value="">All</option>
-            <option v-for="module in modules" :key="module.id" :value="module.id">
-              {{ module.name }}
-            </option>
-          </select>
-        </span>
+    <div class="tab-container tabs dropdown-container">
+      <span class="tab">
+        <label for="selectedModule">Module:</label>
+        <select id="selectedModule" v-model="selectedModule" @change="updateCurrentCard">
+          <option value="">All</option>
+          <option v-for="module in modules" :key="module.id" :value="module.id">
+            {{ module.name }}
+          </option>
+        </select>
+      </span>
 
-        <span class="tab">
-          <label for="selectedTool">Tool:</label>
-          <select id="selectedTool" v-model="selectedTool" @change="updateCurrentCard">
-            <option value="">All</option>
-            <option v-for="tool in tools" :key="tool.id" :value="tool.id">
-              {{ tool.name }}
-            </option>
-          </select>
-        </span>
+      <span class="tab">
+        <label for="selectedTool">Tool:</label>
+        <select id="selectedTool" v-model="selectedTool" @change="updateCurrentCard">
+          <option value="">All</option>
+          <option v-for="tool in tools" :key="tool.id" :value="tool.id">
+            {{ tool.name }}
+          </option>
+        </select>
+      </span>
 
-        <span class="tab">
-          <label for="selectedTopic">Topic:</label>
-          <select id="selectedTopic" v-model="selectedTopic" @change="updateCurrentCard">
-            <option value="">All</option>
-            <option v-for="topic in topics" :key="topic.id" :value="topic.id">
-              {{ topic.name }}
-            </option>
-          </select>
-        </span>
-      </div>
+      <span class="tab">
+        <label for="selectedTopic">Topic:</label>
+        <select id="selectedTopic" v-model="selectedTopic" @change="updateCurrentCard">
+          <option value="">All</option>
+          <option v-for="topic in topics" :key="topic.id" :value="topic.id">
+            {{ topic.name }}
+          </option>
+        </select>
+      </span>
     </div>
 
     <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
@@ -45,7 +43,12 @@
     </button>
 
     <!-- Karte anzeigen -->
-    <div v-if="currentCard" class="card" :class="{ flipped: isFlipped }" @click="flipCard">
+    <div
+      v-if="currentCard"
+      class="card"
+      :class="{ flipped: isFlipped }"
+      @click="flipCard(currentCard.id)"
+    >
       <div class="card-face card-front">
         <p v-if="currentCard">{{ currentCard.toolName }}</p>
         <h3>{{ currentCard.title }}</h3>
@@ -55,11 +58,14 @@
         </div>
       </div>
       <div class="card-face card-back">
-        <p><strong>Tool:</strong> {{ currentCard.tool }}</p>
+        <p><strong>Tool:</strong> {{ currentCard.toolName }}</p>
         <h3>Title: {{ currentCard.title }}</h3>
         <p>{{ currentCard.text_2 }}</p>
         <p>
-          <strong>You have practised this card {{ currentCard.times_practiced }} times!</strong>
+          <strong
+            >You have viewed this card {{ currentCard.times_practiced }} times! (last viewed on
+            {{ currentCard.date_last_practiced }})</strong
+          >
         </p>
       </div>
     </div>
@@ -131,6 +137,7 @@ export default {
       selectedModule: null,
       selectedTool: null,
       selectedTopic: null,
+      currentCardId: null, // ID der aktuellen Karte
       currentIndex: 0,
       isFlipped: false,
       newStatus: '',
@@ -140,8 +147,7 @@ export default {
   },
   computed: {
     currentCard() {
-      const card = this.filteredCards[this.currentIndex] || null // Gibt die aktuelle Karte oder null zurück
-      return card
+      return this.cards.find((card) => card.id === this.currentCardId) || null
     }
   },
   methods: {
@@ -235,7 +241,60 @@ export default {
       this.currentIndex = this.filteredCards.length > 0 ? 0 : -1 // -1, wenn keine Karten vorhanden sind
     },
     flipCard() {
-      this.isFlipped = !this.isFlipped // Umdrehen der Karte
+      // Überprüfe, ob die Karte derzeit auf der Vorderseite ist
+      if (!this.isFlipped) {
+        // Wenn die Karte auf der Vorderseite ist, erhöhe die Übungsanzahl
+        this.incrementTimesPracticed(this.currentCardId)
+      }
+
+      // Umdrehen der Karte
+      this.isFlipped = !this.isFlipped
+    },
+    async incrementTimesPracticed(cardId) {
+      // Hole die aktuelle Karte aus dem Array
+      const currentCard = this.cards.find((card) => card.id === cardId)
+
+      // Erhöhe die Übungsanzahl um 1
+      currentCard.times_practiced += 1 // Setze den neuen Wert lokal
+
+      try {
+        const response = await fetch(`http://localhost:3001/cards/${cardId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: currentCard.id,
+            title: currentCard.title,
+            text_1: currentCard.text_1,
+            text_2: currentCard.text_2,
+            status: currentCard.status,
+            date_last_practiced: new Date().toISOString(),
+            times_practiced: currentCard.times_practiced,
+            moduleId: currentCard.moduleId,
+            toolId: currentCard.toolId,
+            topicId: currentCard.topicId
+          }) // Sende die gesamte Karte zurück
+        })
+
+        if (!response.ok) {
+          throw new Error('Fehler beim Aktualisieren der Karte')
+        }
+
+        const updatedCard = await response.json()
+        console.log('Aktualisierte Karte:', updatedCard)
+
+        // Aktualisiere die Karte im Datenarray
+        const index = this.cards.findIndex((card) => card.id === updatedCard.id)
+        if (index !== -1) {
+          this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte im Array
+        }
+
+        // Setze die aktuelle Karte auf die aktualisierte Karte
+        this.currentCardId = updatedCard.id
+      } catch (error) {
+        console.error('Fehler:', error)
+      }
     },
     prevCard() {
       if (this.currentIndex > 0) {
@@ -257,31 +316,19 @@ export default {
     }
   },
   mounted() {
-    this.fetchCards() // Lade die Karten beim Mounten der Komponente
+    this.fetchCards().then(() => {
+      if (this.cards.length > 0) {
+        this.currentCardId = this.cards[0].id // Setze die aktuelle Karten-ID
+      }
+    }) // Lade die Karten beim Mounten der Komponente
     this.fetchCategories() // Lade Module, Tools und Themen
   }
 }
 </script>
 
 <style scoped>
-.card-container nav a {
-  color: var(--peach-light-orange); /* Change the link color to peach */
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.card-container nav a:hover {
-  color: var(--white); /* Change color on hover if needed */
-}
-
-.card-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Zentriert den gesamten Inhalt */
-}
-
 .dropdown-container {
-  margin: 20px 0; /* Abstand oben und unten */
+  margin: 2px 0; /* Abstand oben und unten */
 }
 
 .dropdown-container select {
@@ -312,7 +359,7 @@ export default {
   display: inline-block;
   height: 370px;
   padding: 0.7em 2em; /* Innenabstand */
-  color: var(--white); /* Schriftfarbe */
+  color: var(--champagne); /* Schriftfarbe */
   background-color: var(--vibrant-purple); /* Hintergrundfarbe */
   border: 1px solid white;
   border-radius: 30px 30px 0 0; /* Nur oben gerundet */
@@ -327,7 +374,7 @@ export default {
 .tab select {
   margin-left: 0px; /* Abstand zwischen dem Tab-Text und dem Dropdown */
   background-color: var(--vibrant-purple); /* Hintergrundfarbe des Dropdowns */
-  color: var(--white); /* Schriftfarbe des Dropdowns */
+  color: var(--peach-light-orange); /* Schriftfarbe des Dropdowns */
   padding: 0em; /* Innenabstand für das Dropdown */
   border-radius: 0px; /* Gerundete Ecken für das Dropdown */
   border: 0px solid #ccc; /* Rahmen für das Dropdown */
@@ -425,9 +472,6 @@ export default {
   text-align: center;
 }
 
-.dropdown-container {
-  margin: 2px 0; /* Abstand für die Dropdowns */
-}
 /* Status Update Radio Buttons */
 .status-update {
   display: flex;
