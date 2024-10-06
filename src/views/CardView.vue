@@ -408,7 +408,7 @@ export default {
   border-radius: 0px; /* Gerundete Ecken für das Dropdown */
   border: 0px solid #ccc; /* Rahmen für das Dropdown */
   cursor: pointer; /* Zeiger-Cursor */
-  width: 150px; /* Feste Breite für das Dropdown */
+  width: 100%; /* Feste Breite für das Dropdown */
 }
 
 /* Karte */
