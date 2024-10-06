@@ -515,4 +515,12 @@ export default {
 .status-update input[type='radio'] {
   margin-right: 5px;
 }
+
+@media only screen and (max-width: 768px) and (orientation: landscape) {
+  /* Hide non-essential elements */
+
+  header {
+    display: none; /* Hides these elements */
+  }
+}
 </style>

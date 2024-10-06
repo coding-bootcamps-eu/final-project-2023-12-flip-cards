@@ -72,4 +72,11 @@ export default {
   height: auto;
   margin-top: 1rem;
 }
+
+@media only screen and (max-width: 768px) and (orientation: landscape) {
+  /* Hide the image in landscape mode */
+  .main-layout img {
+    display: none; /* Hides the image */
+  }
+}
 </style>
