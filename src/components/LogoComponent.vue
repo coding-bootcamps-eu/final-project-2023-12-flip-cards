@@ -9,6 +9,9 @@
       <div class="rounded-wurst right"></div>
       <div class="small-triangle"></div>
     </div>
+
+    <div class="triangle"></div>
+    <!-- Simple triangle for small screens -->
   </div>
 </template>
 
@@ -100,5 +103,29 @@ export default {
   height: 24px;
   fill: #6a1cc3; /* Adjust the color as needed */
   pointer-events: none; /* Makes the icon non-interactive */
+}
+
+/* Existing styles above remain unchanged */
+
+/* Media Query for Small Screens */
+@media (max-width: 768px) {
+  /* Hide the existing logo shape */
+  .logo-shape {
+    display: none; /* Hides the original logo */
+  }
+
+  /* Show the simple triangle */
+  .triangle {
+    width: 0; /* Width of the triangle is set to 0 */
+    height: 0; /* Height of the triangle is set to 0 */
+    border-left: 15px solid transparent; /* Left thickness */
+    border-right: 15px solid transparent; /* Right thickness */
+    border-bottom: 20px solid #6a1cc3; /* Height and color of the triangle */
+    margin-top: 10px; /* Space between h1 and triangle */
+  }
+
+  #logo {
+    height: 10vh; /* Maintain the height of the logo container */
+  }
 }
 </style>
