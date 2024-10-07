@@ -90,18 +90,23 @@ export default {
   data() {
     return {
       newCard: {
+        id: ' ',
         title: '',
-        moduleId: null,
-        toolId: null,
-        topicId: null,
         text_1: '',
-        text_2: ''
+        text_2: '',
+        status: 'new',
+        date_last_practiced: ' ',
+        times_practiced: '',
+        moduleId: '',
+        toolId: '',
+        topicId: ''
       },
-      modules: [], // Array for modules
-      tools: [], // Array for tools
-      topics: [] // Array for topics
+      modules: [],
+      tools: [],
+      topics: []
     }
   },
+
   mounted() {
     this.fetchModules()
     this.fetchTools()

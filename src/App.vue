@@ -31,7 +31,6 @@ header {
   header {
     display: flex;
     place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
   }
 
   .logo {
@@ -40,7 +39,7 @@ header {
 
   header .wrapper {
     display: flex;
-    place-items: flex-start;
+    place-items: center;
     flex-wrap: wrap;
   }
 }
