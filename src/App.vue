@@ -31,6 +31,10 @@ header {
   header {
     display: flex;
     place-items: center;
+    width: 100%; /* Ensure header spans the full width */
+    position: relative; /* Allow header to take full width */
+    left: 0; /* Positioning it to the left */
+    right: 0; /* Positioning it to the right */
   }
 
   .logo {
