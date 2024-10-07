@@ -53,20 +53,11 @@
         <p v-if="currentCard">{{ currentCard.toolName }}</p>
         <h3>{{ currentCard.title }}</h3>
         <p>{{ currentCard.text_1 }}</p>
-        <div class="card-footer">
-          <p><strong>This card is currently on stack:</strong> {{ currentCard.status }}</p>
-        </div>
       </div>
       <div class="card-face card-back">
         <p><strong>Tool:</strong> {{ currentCard.toolName }}</p>
         <h3>Title: {{ currentCard.title }}</h3>
         <p>{{ currentCard.text_2 }}</p>
-        <p>
-          <strong
-            >You have viewed this card {{ currentCard.times_practiced }} times! (last viewed on
-            {{ currentCard.date_last_practiced }})</strong
-          >
-        </p>
       </div>
     </div>
 
@@ -78,6 +69,55 @@
       &#9654;
     </button>
 
+    <div v-if="currentCard">
+      <p>
+        You have practiced this card {{ currentCard.times_practiced }} times (last viewed on
+        {{ currentCard.date_last_practiced }})!
+      </p>
+      <h4>This card is currently on stack {{ currentCard.status }}</h4>
+    </div>
+
+    <!-- Status Update Radio Buttons -->
+    <div class="status-update">
+      <h4>Move card to stack</h4>
+      <label>
+        <input
+          type="radio"
+          v-model="newStatus"
+          value="new"
+          @change="updateCardStatus(currentCard)"
+        />
+        New
+      </label>
+      <label>
+        <input
+          type="radio"
+          v-model="newStatus"
+          value="review needed"
+          @change="updateCardStatus(currentCard)"
+        />
+        Review Needed
+      </label>
+      <label>
+        <input
+          type="radio"
+          v-model="newStatus"
+          value="confident"
+          @change="updateCardStatus(currentCard)"
+        />
+        Confident
+      </label>
+      <label>
+        <input
+          type="radio"
+          v-model="newStatus"
+          value="archived"
+          @change="updateCardStatus(currentCard)"
+        />
+        Archived
+      </label>
+    </div>
+
     <!-- Filter Dropdown -->
     <div class="filter-section">
       <label for="filter">Select stack:</label>
@@ -88,27 +128,6 @@
         <option value="confident">Confident</option>
         <option value="archived">Archived</option>
       </select>
-    </div>
-
-    <!-- Status Update Radio Buttons -->
-    <div class="status-update">
-      <h4>Move card to stack</h4>
-      <label>
-        <input type="radio" v-model="newStatus" value="new" @change="updateCardStatus" />
-        New
-      </label>
-      <label>
-        <input type="radio" v-model="newStatus" value="review needed" @change="updateCardStatus" />
-        Review Needed
-      </label>
-      <label>
-        <input type="radio" v-model="newStatus" value="confident" @change="updateCardStatus" />
-        Confident
-      </label>
-      <label>
-        <input type="radio" v-model="newStatus" value="archived" @change="updateCardStatus" />
-        Archived
-      </label>
     </div>
 
     <!-- Footer -->
@@ -147,7 +166,7 @@ export default {
   },
   computed: {
     currentCard() {
-      return this.cards.find((card) => card.id === this.currentCardId) || null
+      return this.filteredCards[this.currentIndex] || null
     }
   },
   methods: {
@@ -166,6 +185,9 @@ export default {
         // Konvertiere die Antworten in JSON
         const cards = await cardResponse.json()
         const tools = await toolResponse.json()
+
+        console.log('Geladene Karten:', cards) // Debugging
+        console.log('Geladene Tools:', tools) // Debugging
 
         // Füge die Toolnamen zu den Karten hinzu
         this.cards = cards.map((card) => {
@@ -224,7 +246,7 @@ export default {
       this.updateCurrentCard() // Aktualisiere die angezeigten Karten
     },*/
     updateCurrentCard() {
-      // Filtere die Karten basierend auf den ausgewählten IDs
+      // Filtere die Karten basierend auf den ausgewählten Modulen, Tools und Themen
       this.filteredCards = this.cards.filter(
         (card) =>
           (!this.selectedModule || card.moduleId === this.selectedModule) &&
@@ -232,17 +254,24 @@ export default {
           (!this.selectedTopic || card.topicId === this.selectedTopic)
       )
 
-      // Wenn keine Karten gefunden wurden, zeige die gesamte Liste an
+      // Überprüfe, ob es gefilterte Karten gibt
       if (this.filteredCards.length === 0) {
-        this.filteredCards = this.cards
+        this.filteredCards = this.cards // Wenn nicht, zeige alle Karten an
       }
 
-      // Setze den aktuellen Index auf die erste Karte im gefilterten Array
-      this.currentIndex = this.filteredCards.length > 0 ? 0 : -1 // -1, wenn keine Karten vorhanden sind
+      // Setze den aktuellen Index zurück
+      this.currentIndex = this.filteredCards.length > 0 ? 0 : -1
+
+      // Setze die aktuelle Karten-ID, wenn der Index gültig ist
+      this.currentCardId = this.currentIndex >= 0 ? this.filteredCards[this.currentIndex].id : null
+
+      // Stelle sicher, dass die computed properties aktuell sind
+      this.$forceUpdate() // Erzwungene Aktualisierung des UI (nicht immer nötig, aber nützlich bei Problemen)
     },
     flipCard() {
       // Überprüfe, ob die Karte derzeit auf der Vorderseite ist
       if (!this.isFlipped) {
+        console.log('Aktuelle Karte ID:', this.currentCardId) // Debugging
         // Wenn die Karte auf der Vorderseite ist, erhöhe die Übungsanzahl
         this.incrementTimesPracticed(this.currentCardId)
       }
@@ -251,6 +280,12 @@ export default {
       this.isFlipped = !this.isFlipped
     },
     async incrementTimesPracticed(cardId) {
+      console.log('Karte ID zum Üben:', cardId) // Debugging
+      if (!cardId) {
+        console.error('Keine gültige Karten-ID') // Debugging
+        return // Beende die Funktion, wenn die Karte nicht gefunden wurde
+      }
+
       try {
         const currentCard = this.cards.find((card) => card.id === cardId)
 
@@ -259,19 +294,16 @@ export default {
           return // Beende die Funktion, wenn die Karte nicht gefunden wurde
         }
 
-        // Erhöhe die Übungsanzahl um 1
-        currentCard.times_practiced += 1
+        const updatedCardData = {
+          ...currentCard,
+          times_practiced: currentCard.times_practiced + 1,
+          date_last_practiced: new Date().toISOString()
+        }
 
         const response = await fetch(`http://localhost:3001/cards/${cardId}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            ...currentCard, // Sende die gesamte Karte zurück
-            times_practiced: currentCard.times_practiced, // Aktuelle Übungsanzahl
-            date_last_practiced: new Date().toISOString() // Aktuelles Datum
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedCardData)
         })
 
         if (!response.ok) {
@@ -281,14 +313,14 @@ export default {
         const updatedCard = await response.json()
         console.log('Aktualisierte Karte:', updatedCard)
 
-        // Aktualisiere die Karte im Datenarray
+        // Stelle sicher, dass wir das richtige Element im Array aktualisieren
         const index = this.cards.findIndex((card) => card.id === updatedCard.id)
         if (index !== -1) {
-          this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte im Array
+          // Hier wird die Karte direkt aktualisiert
+          this.cards[index].times_practiced = updatedCard.times_practiced
+          this.cards[index].date_last_practiced = updatedCard.date_last_practiced // optional, falls gewünscht
+          this.currentIndex = index // Setze den aktuellen Index zur aktualisierten Karte
         }
-
-        // Setze die aktuelle Karten-ID auf die aktualisierte Karte
-        this.currentCardId = updatedCard.id // Aktualisiere die aktuelle Karten-ID
       } catch (error) {
         console.error('Fehler:', error)
       }
@@ -296,32 +328,33 @@ export default {
     prevCard() {
       if (this.currentIndex > 0) {
         this.currentIndex--
-        this.isFlipped = false // Setze den Zustand zurück, wenn zur vorherigen Karte gewechselt wird
+        this.currentCardId = this.filteredCards[this.currentIndex].id // Aktualisiere die ID
+        this.isFlipped = false // Setze den Zustand zurück
       }
     },
+
     nextCard() {
       if (this.currentIndex < this.filteredCards.length - 1) {
         this.currentIndex++
-        this.isFlipped = false // Setze den Zustand zurück, wenn zur nächsten Karte gewechselt wird
+        this.currentCardId = this.filteredCards[this.currentIndex].id // Aktualisiere die ID
+        this.isFlipped = false // Setze den Zustand zurück
       }
     },
     updateCardStatus() {
-      // Stelle sicher, dass currentCard existiert
       if (!this.currentCard) {
         console.error('Keine aktuelle Karte gesetzt')
         return
       }
 
-      // Erstelle einen PUT-Request, um den Status in der API zu aktualisieren
+      const updatedCardData = {
+        ...this.currentCard,
+        status: this.newStatus // Setze den neuen Status
+      }
+
       fetch(`http://localhost:3001/cards/${this.currentCard.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...this.currentCard, // Behalte alle Felder der aktuellen Karte
-          status: this.newStatus // Setze den neuen Status
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCardData)
       })
         .then((response) => {
           if (!response.ok) {
@@ -330,14 +363,14 @@ export default {
           return response.json()
         })
         .then((updatedCard) => {
-          console.log('Aktualisierte Karte:', updatedCard)
           // Aktualisiere die Karte im lokalen Array
           const index = this.cards.findIndex((card) => card.id === updatedCard.id)
           if (index !== -1) {
-            this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte im Array
+            this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte
+
+            // Update filteredCards, falls nötig
+            this.applyFilter() // Aktualisiere gefilterte Karten
           }
-          // Aktualisiere die aktuelle Karten-ID
-          this.currentCardId = updatedCard.id // Setze die aktuelle Karten-ID
         })
         .catch((error) => {
           console.error('Fehler:', error)
@@ -346,10 +379,12 @@ export default {
   },
   mounted() {
     this.fetchCards().then(() => {
+      console.log('Karten nach dem Laden:', this.cards) // Debugging
       if (this.cards.length > 0) {
         this.currentCardId = this.cards[0].id // Setze die aktuelle Karten-ID
+        this.currentIndex = 0 // Setze den Index auf 0 für die erste Karte
       }
-    }) // Lade die Karten beim Mounten der Komponente
+    })
     this.fetchCategories() // Lade Module, Tools und Themen
   }
 }
