@@ -42,7 +42,7 @@
       &#9664;
     </button>
 
-    <!-- Karte anzeigen -->
+    <!-- Karte -->
     <div
       v-if="currentCard"
       class="card"
@@ -50,14 +50,20 @@
       @click="flipCard(currentCard.id)"
     >
       <div class="card-face card-front">
-        <p v-if="currentCard">{{ currentCard.toolName }}</p>
-        <h3>{{ currentCard.title }}</h3>
-        <p>{{ currentCard.text_1 }}</p>
+        <div class="card-header">
+          <p v-if="currentCard"><strong>Tool:</strong> {{ currentCard.toolName }}</p>
+          <p>Title: {{ currentCard.title }}</p>
+        </div>
+        <p class="card-main">{{ currentCard.text_1 }}</p>
+        <div class="card-footer"></div>
       </div>
       <div class="card-face card-back">
-        <p><strong>Tool:</strong> {{ currentCard.toolName }}</p>
-        <h3>Title: {{ currentCard.title }}</h3>
-        <p>{{ currentCard.text_2 }}</p>
+        <div class="card-header">
+          <p><strong>Tool:</strong> {{ currentCard.toolName }}</p>
+          <p>Title: {{ currentCard.title }}</p>
+        </div>
+        <p class="card-main">{{ currentCard.text_2 }}</p>
+        <div class="card-footer"></div>
       </div>
     </div>
 
@@ -74,9 +80,11 @@
         You have practiced this card {{ currentCard.times_practiced }} times (last viewed on
         {{ currentCard.date_last_practiced }})!
       </p>
-      <h4>This card is currently on stack {{ currentCard.status }}</h4>
+      <h4>
+        This card is currently on stack: <strong>{{ currentCard.status }}</strong
+        >.
+      </h4>
     </div>
-
     <!-- Status Update Radio Buttons -->
     <div class="status-update">
       <h4>Move card to stack</h4>
@@ -392,7 +400,7 @@ export default {
 
 <style scoped>
 .dropdown-container {
-  margin: 2px 0; /* Abstand oben und unten */
+  margin: 0; /* Abstand oben entfernt */
 }
 
 .dropdown-container select {
@@ -411,16 +419,18 @@ export default {
 
 .tab-container {
   position: relative; /* Positionierung für die Tabs */
+  width: 100%; /* Breite anpassen */
   margin-top: 2rem;
   z-index: 1; /* Höherer z-index für die Tabs */
 }
 
 .tabs {
   display: flex; /* Flexbox für die Registerkarten */
+  justify-content: space-between; /* Gleiche Breite für alle Tabs */
 }
 
 .tab {
-  display: inline-block;
+  flex: 1; /* Alle Tabs gleich breit */
   height: 370px;
   padding: 0.7em 2em; /* Innenabstand */
   color: var(--champagne); /* Schriftfarbe */
@@ -454,8 +464,11 @@ export default {
   cursor: pointer; /* Zeiger-Cursor */
   position: relative; /* Positionierung für die Karte */
   margin-top: -300px; /* Negative Margin, um die Karte nach oben zu verschieben */
+
+  margin-left: 1px;
   z-index: 2; /* Niedrigerer z-index, damit die Karte hinter den Tabs liegt */
   box-shadow: 15px 1px 15px 1px rgba(0, 0, 0, 0.6);
+  line-height: 3em;
 }
 
 .card-face {
@@ -465,27 +478,32 @@ export default {
   backface-visibility: hidden;
   transition: transform 0.6s;
   border: 2px solid var(--vibrant-purple);
+  background-image:
+    -moz-linear-gradient(top, transparent, transparent 49px, var(--white) 0px),
+    /* Vorderseite */ -moz-radial-gradient(4% 50%, circle closest-corner, thistle, thistle 39%, transparent
+          0%),
+    -moz-radial-gradient(3.9% 46%, circle closest-corner, thistle, thistle 43.5%, transparent 0%);
+  background-image: -webkit-linear-gradient(top, transparent, transparent 49px, thistle 0);
+  background-size: 100% 50px;
 }
 
 .card-front,
 .card-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Inhalte in der Mitte zentrieren */
   align-items: center; /* Inhalte horizontal zentrieren */
   padding: 1rem; /* Innenabstand */
 }
 
 .card-front {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly; /* Inhalte in der Mitte zentrieren */
   background-color: var(--thistle);
-  color: black;
+  color: var(--black);
   padding: 1rem;
 }
 
 .card-back {
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly; /* Inhalte in der Mitte zentrieren */
   background-color: var(--champagne);
   color: var(--black);
   transform: rotateY(180deg);
@@ -493,7 +511,18 @@ export default {
 }
 
 .card-header {
+  display: flex;
+  width: 80%;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   text-decoration: underline;
+}
+
+.card-main {
+  width: 80%;
+  margin-top: -90px;
+  font-size: 20px;
 }
 
 .card.flipped .card-front {
@@ -513,7 +542,7 @@ export default {
   color: var(--vibrant-purple);
   padding: 0 20px;
   position: absolute;
-  top: 50%;
+  top: 40%;
   transform: translateY(-50%);
   z-index: 10;
 }
@@ -532,7 +561,7 @@ export default {
 }
 
 .filter-section {
-  margin-top: 2rem;
+  margin-top: 0; /* Abstand oben entfernt */
   text-align: center;
 }
 
@@ -540,11 +569,10 @@ export default {
 .status-update {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
 }
 
 .status-update label {
-  margin-inline: 10px;
+  margin-inline: 5px;
 }
 
 .status-update input[type='radio'] {
@@ -553,9 +581,15 @@ export default {
 
 @media only screen and (max-width: 768px) and (orientation: landscape) {
   /* Hide non-essential elements */
-
   header {
     display: none; /* Hides these elements */
+  }
+  .tab-container {
+    position: relative; /* Positionierung für die Tabs */
+    margin-top: 0.1rem;
+  }
+  .nav-arrow {
+    top: 53%;
   }
 }
 </style>
