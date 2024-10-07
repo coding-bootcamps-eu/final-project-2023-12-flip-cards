@@ -8,9 +8,9 @@
     <!-- Input Form Section -->
     <main>
       <div class="card-wrapper">
-        <!-- Card Wrapper für das Formular -->
+        <!-- Card Wrapper for the form -->
         <form @submit.prevent="saveCard">
-          <!-- Formular für die Eingaben -->
+          <!-- Form for user input -->
           <div class="card-header">
             <div class="input-group">
               <label for="module-select">Module:</label>
@@ -39,7 +39,6 @@
           </div>
           <div class="card-body">
             <p>
-              <label for="card-title"></label>
               <input
                 type="text"
                 id="card-title"
@@ -49,7 +48,6 @@
               />
             </p>
             <p>
-              <label for="front-text"></label>
               <textarea
                 id="front-text"
                 v-model="newCard.text_1"
@@ -58,7 +56,6 @@
               ></textarea>
             </p>
             <p>
-              <label for="back-text"></label>
               <textarea
                 id="back-text"
                 v-model="newCard.text_2"
@@ -67,10 +64,10 @@
               ></textarea>
             </p>
           </div>
+          <!-- Button to save the card inside the form -->
+          <button type="submit">Save Card</button>
         </form>
       </div>
-      <button type="submit">Save Card</button>
-      <!-- Button zum Speichern -->
     </main>
 
     <!-- Footer -->
@@ -100,9 +97,9 @@ export default {
         text_1: '',
         text_2: ''
       },
-      modules: [], // Array für Module
-      tools: [], // Array für Tools
-      topics: [] // Array für Themen
+      modules: [], // Array for modules
+      tools: [], // Array for tools
+      topics: [] // Array for topics
     }
   },
   mounted() {
@@ -112,55 +109,55 @@ export default {
   },
   methods: {
     fetchModules() {
-      fetch('http://localhost:3001/modules') // API-Endpunkt für Module
+      fetch('http://localhost:3001/modules') // API endpoint for modules
         .then((response) => response.json())
         .then((data) => {
-          this.modules = data // Speichern der abgerufenen Module
+          this.modules = data // Store retrieved modules
         })
         .catch((error) => {
-          console.error('Fehler beim Abrufen der Module:', error)
+          console.error('Error fetching modules:', error)
         })
     },
     fetchTools() {
-      fetch('http://localhost:3001/tools') // API-Endpunkt für Tools
+      fetch('http://localhost:3001/tools') // API endpoint for tools
         .then((response) => response.json())
         .then((data) => {
-          this.tools = data // Speichern der abgerufenen Tools
+          this.tools = data // Store retrieved tools
         })
         .catch((error) => {
-          console.error('Fehler beim Abrufen der Tools:', error)
+          console.error('Error fetching tools:', error)
         })
     },
     fetchTopics() {
-      fetch('http://localhost:3001/topics') // API-Endpunkt für Themen
+      fetch('http://localhost:3001/topics') // API endpoint for topics
         .then((response) => response.json())
         .then((data) => {
-          this.topics = data // Speichern der abgerufenen Themen
+          this.topics = data // Store retrieved topics
         })
         .catch((error) => {
-          console.error('Fehler beim Abrufen der Themen:', error)
+          console.error('Error fetching topics:', error)
         })
     },
     saveCard() {
-      // Sende die neue Karte an die API
+      // Save the card by sending it to the API
       fetch('http://localhost:3001/cards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.newCard) // Sende die neuen Kartendaten als JSON
+        body: JSON.stringify(this.newCard) // Send the card data as JSON
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log('Karte gespeichert:', data)
-          this.resetForm() // Setze das Formular zurück nach dem Speichern
+          console.log('Card saved:', data)
+          this.resetForm() // Reset the form after saving
         })
         .catch((error) => {
-          console.error('Fehler beim Speichern der Karte:', error)
+          console.error('Error saving the card:', error)
         })
     },
     resetForm() {
-      // Setze das Formular zurück
+      // Reset the form fields
       this.newCard = {
         title: '',
         moduleId: null,
@@ -175,76 +172,73 @@ export default {
 </script>
 
 <style scoped>
-/* Allgemeine Stile für die InputView-Komponente */
+/* General styles for the InputView component */
 main {
-  padding-top: 10px; /* Padding für den Hauptbereich */
+  padding-top: 10px;
 }
 
 /* Card Wrapper */
 .card-wrapper {
-  background-color: white; /* Hintergrundfarbe der Karte */
-  border: 1px solid #ddd; /* Rahmen um die Karte */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Schatten für die Karte */
-  padding: 0px; /* Padding innerhalb der Karte */
-  margin-bottom: 20px; /* Abstand zwischen den Karten */
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
-/* Header-Stile */
+/* Header Styles */
 .card-header {
-  display: flex; /* Flexbox für die Anordnung der Eingabefelder */
-  justify-content: space-between; /* Abstand zwischen den Eingabefeldern */
-  margin-bottom: 0px; /* Abstand unter dem Header */
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
   background-color: #e4d2f9;
 }
 
 input[type='text'],
 textarea,
 select {
-  width: 100%; /* Breite auf 100% setzen für die nebeneinander stehenden Felder */
-  padding: 10px; /* Padding für die Eingabefelder */
-  margin: 5px 0; /* Abstand oben und unten */
-  border: 1px solid #ccc; /* Rahmen für die Eingabefelder */
-  border-radius: 5px; /* Abgerundete Ecken */
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 select {
-  background-color: #e4d2f9; /* Hintergrundfarbe */
-  color: #333; /* Textfarbe */
+  background-color: #e4d2f9;
+  color: #333;
 }
 
 select:focus {
-  border-color: #6a1cc3; /* Beispiel: Setze die Rahmenfarbe auf einen lila Farbton */
-  outline: none; /* Entferne den Standard-Outline */
+  border-color: #6a1cc3;
+  outline: none;
 }
 
-/* Optional: Höhe für Textarea anpassen */
 textarea {
-  height: 60px; /* Beispielhöhe für Textarea */
+  height: 60px;
 }
 
-/* Platzhalter-Stile */
+/* Placeholder Styles */
 input::placeholder,
 textarea::placeholder {
-  font-family: Arial, sans-serif; /* Setze die gewünschte Schriftart */
-  font-size: 14px; /* Setze die gewünschte Schriftgröße */
-  color: #aaa; /* Setze die gewünschte Schriftfarbe */
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #aaa;
 }
 
-/* Button-Stile */
+/* Button Styles */
 button {
-  margin-bottom: 10px;
-  padding: 10px 20px; /* Padding für den Button */
-  background-color: var(--vibrant-purple); /* Hintergrundfarbe */
-  color: white; /* Textfarbe */
-  border: none; /* Kein Rahmen */
-  border-radius: 5px; /* Abgerundete Ecken */
-  cursor: pointer; /* Zeiger für den Cursor */
-  transition: background-color 0.3s; /* Übergangseffekt */
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: var(--vibrant-purple);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #5a0e94; /* Dunklere Farbe beim Hover */
+  background-color: #5a0e94;
 }
-
-/* Optional: Weitere Stile für das Layout */
 </style>
