@@ -77,7 +77,7 @@
 
     <div v-if="currentCard">
       <p>
-        You have practiced this card {{ currentCard.times_practiced }} times (last viewed on
+        You have viewed this card {{ currentCard.times_practiced }} times (last viewed on
         {{ currentCard.date_last_practiced }})!
       </p>
       <h4>
@@ -378,11 +378,16 @@ export default {
           // Aktualisiere die Karte im lokalen Array
           const index = this.cards.findIndex((card) => card.id === updatedCard.id)
           if (index !== -1) {
+            // Aktualisiere die Karte in der Liste
             this.cards.splice(index, 1, updatedCard) // Aktualisiere die Karte
 
-            // Update filteredCards, falls nötig
-            this.applyFilter() // Aktualisiere gefilterte Karten
+            // Behalte den aktuellen Index bei
+            this.currentCardId = updatedCard.id // Setze die aktuelle Karte auf die aktualisierte Karte
+            this.currentIndex = index // Setze den Index auf den Index der aktualisierten Karte
           }
+
+          // Wende den Filter an, um die gefilterten Karten zu aktualisieren
+          this.applyFilter()
         })
         .catch((error) => {
           console.error('Fehler:', error)

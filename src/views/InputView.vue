@@ -90,20 +90,21 @@ export default {
   data() {
     return {
       newCard: {
-        id: ' ',
+        id: null,
         title: '',
         text_1: '',
         text_2: '',
-        status: 'new',
-        date_last_practiced: ' ',
-        times_practiced: '',
+        status: '',
+        date_last_practiced: '',
+        times_practiced: 0,
         moduleId: '',
         toolId: '',
         topicId: ''
       },
       modules: [],
       tools: [],
-      topics: []
+      topics: [],
+      cards: []
     }
   },
 
@@ -111,6 +112,7 @@ export default {
     this.fetchModules()
     this.fetchTools()
     this.fetchTopics()
+    this.fetchCards()
   },
   methods: {
     fetchModules() {
@@ -143,7 +145,22 @@ export default {
           console.error('Error fetching topics:', error)
         })
     },
+    fetchCards() {
+      fetch('http://localhost:3001/cards') // API endpoint für Karten
+        .then((response) => response.json())
+        .then((data) => {
+          this.cards = data // Speichern der bestehenden Karten
+        })
+        .catch((error) => {
+          console.error('Error fetching cards:', error)
+        })
+    },
+
     saveCard() {
+      // set new id according to highest id +1
+      const highestId = this.cards.reduce((max, card) => Math.max(max, card.id), 0)
+      this.newCard.id = highestId + 1
+      this.newCard.status = 'new'
       // Save the card by sending it to the API
       fetch('http://localhost:3001/cards', {
         method: 'POST',
