@@ -305,7 +305,11 @@ export default {
         const updatedCardData = {
           ...currentCard,
           times_practiced: currentCard.times_practiced + 1,
-          date_last_practiced: new Date().toISOString()
+          date_last_practiced: new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
         }
 
         const response = await fetch(`http://localhost:3001/cards/${cardId}`, {
@@ -326,7 +330,7 @@ export default {
         if (index !== -1) {
           // Hier wird die Karte direkt aktualisiert
           this.cards[index].times_practiced = updatedCard.times_practiced
-          this.cards[index].date_last_practiced = updatedCard.date_last_practiced // optional, falls gewünscht
+          this.cards[index].date_last_practiced = updatedCard.date_last_practiced
           this.currentIndex = index // Setze den aktuellen Index zur aktualisierten Karte
         }
       } catch (error) {
@@ -468,7 +472,7 @@ export default {
   margin-left: 1px;
   z-index: 2; /* Niedrigerer z-index, damit die Karte hinter den Tabs liegt */
   box-shadow: 15px 1px 15px 1px rgba(0, 0, 0, 0.6);
-  line-height: 3em;
+  line-height: 3.3em;
 }
 
 .card-face {
@@ -485,6 +489,7 @@ export default {
     -moz-radial-gradient(3.9% 46%, circle closest-corner, thistle, thistle 43.5%, transparent 0%);
   background-image: -webkit-linear-gradient(top, transparent, transparent 49px, thistle 0);
   background-size: 100% 50px;
+  font-size: 20px;
 }
 
 .card-front,
@@ -521,8 +526,7 @@ export default {
 
 .card-main {
   width: 80%;
-  margin-top: -90px;
-  font-size: 20px;
+  margin-top: 10px;
 }
 
 .card.flipped .card-front {
@@ -579,9 +583,21 @@ export default {
   margin-right: 5px;
 }
 
-@media only screen and (max-width: 768px) and (orientation: landscape) {
+@media only screen and (max-width: 768px) and (orientation: portrait) {
+  .nav-arrow {
+    top: 42%;
+  }
+
+  .card-main {
+    margin-top: -22px;
+  }
+}
+@media only screen and (max-width: 915px) and (orientation: landscape) {
   /* Hide non-essential elements */
   header {
+    display: none; /* Hides these elements */
+  }
+  footer {
     display: none; /* Hides these elements */
   }
   .tab-container {
