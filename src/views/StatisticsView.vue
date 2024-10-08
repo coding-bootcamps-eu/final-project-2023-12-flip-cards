@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-wrapper">
     <!-- Header -->
     <header>
       <HeaderComponent title="Card Statistics" msg="Track your progress" />
@@ -184,6 +184,23 @@ export default {
 </script>
 
 <style scoped>
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Full height of the viewport */
+}
+
+main {
+  flex: 1; /* Make the main content grow to fill available space */
+}
+
+footer {
+  background-color: var(--vibrant-purple); /* Background color for the footer */
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
 .stats-container {
   background-color: white;
   padding: 20px;
