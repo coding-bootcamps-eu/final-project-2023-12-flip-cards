@@ -587,9 +587,12 @@ export default {
   .nav-arrow {
     top: 42%;
   }
-
+  .card-header {
+    font-size: 14px;
+    width: 100%;
+  }
   .card-main {
-    margin-top: -22px;
+    margin-top: -63px;
   }
 }
 @media only screen and (max-width: 915px) and (orientation: landscape) {
