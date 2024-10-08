@@ -1,143 +1,143 @@
 <template>
-  <div>
+  <div class="app-wrapper">
     <!-- Header -->
     <header>
       <HeaderComponent title="Practice Your Cards" msg="One card at a time" />
     </header>
+    <main>
+      <!-- Tab Container -->
+      <div class="tab-container tabs dropdown-container">
+        <span class="tab">
+          <label for="selectedModule">Module:</label>
+          <select id="selectedModule" v-model="selectedModule" @change="updateCurrentCard">
+            <option value="">All</option>
+            <option v-for="module in modules" :key="module.id" :value="module.id">
+              {{ module.name }}
+            </option>
+          </select>
+        </span>
 
-    <!-- Tab Container -->
-    <div class="tab-container tabs dropdown-container">
-      <span class="tab">
-        <label for="selectedModule">Module:</label>
-        <select id="selectedModule" v-model="selectedModule" @change="updateCurrentCard">
-          <option value="">All</option>
-          <option v-for="module in modules" :key="module.id" :value="module.id">
-            {{ module.name }}
-          </option>
-        </select>
-      </span>
+        <span class="tab">
+          <label for="selectedTool">Tool:</label>
+          <select id="selectedTool" v-model="selectedTool" @change="updateCurrentCard">
+            <option value="">All</option>
+            <option v-for="tool in tools" :key="tool.id" :value="tool.id">
+              {{ tool.name }}
+            </option>
+          </select>
+        </span>
 
-      <span class="tab">
-        <label for="selectedTool">Tool:</label>
-        <select id="selectedTool" v-model="selectedTool" @change="updateCurrentCard">
-          <option value="">All</option>
-          <option v-for="tool in tools" :key="tool.id" :value="tool.id">
-            {{ tool.name }}
-          </option>
-        </select>
-      </span>
-
-      <span class="tab">
-        <label for="selectedTopic">Topic:</label>
-        <select id="selectedTopic" v-model="selectedTopic" @change="updateCurrentCard">
-          <option value="">All</option>
-          <option v-for="topic in topics" :key="topic.id" :value="topic.id">
-            {{ topic.name }}
-          </option>
-        </select>
-      </span>
-    </div>
-
-    <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
-      &#9664;
-    </button>
-
-    <!-- Karte -->
-    <div
-      v-if="currentCard"
-      class="card"
-      :class="{ flipped: isFlipped }"
-      @click="flipCard(currentCard.id)"
-    >
-      <div class="card-face card-front">
-        <div class="card-header">
-          <p v-if="currentCard"><strong>Tool:</strong> {{ currentCard.toolName }}</p>
-          <p>Title: {{ currentCard.title }}</p>
-        </div>
-        <p class="card-main">{{ currentCard.text_1 }}</p>
-        <div class="card-footer"></div>
+        <span class="tab">
+          <label for="selectedTopic">Topic:</label>
+          <select id="selectedTopic" v-model="selectedTopic" @change="updateCurrentCard">
+            <option value="">All</option>
+            <option v-for="topic in topics" :key="topic.id" :value="topic.id">
+              {{ topic.name }}
+            </option>
+          </select>
+        </span>
       </div>
-      <div class="card-face card-back">
-        <div class="card-header">
-          <p><strong>Tool:</strong> {{ currentCard.toolName }}</p>
-          <p>Title: {{ currentCard.title }}</p>
+
+      <button class="nav-arrow left-arrow" @click="prevCard" :disabled="currentIndex === 0">
+        &#9664;
+      </button>
+
+      <!-- Karte -->
+      <div
+        v-if="currentCard"
+        class="card"
+        :class="{ flipped: isFlipped }"
+        @click="flipCard(currentCard.id)"
+      >
+        <div class="card-face card-front">
+          <div class="card-header">
+            <p v-if="currentCard"><strong>Tool:</strong> {{ currentCard.toolName }}</p>
+            <p>Title: {{ currentCard.title }}</p>
+          </div>
+          <p class="card-main">{{ currentCard.text_1 }}</p>
+          <div class="card-footer"></div>
         </div>
-        <p class="card-main">{{ currentCard.text_2 }}</p>
-        <div class="card-footer"></div>
+        <div class="card-face card-back">
+          <div class="card-header">
+            <p><strong>Tool:</strong> {{ currentCard.toolName }}</p>
+            <p>Title: {{ currentCard.title }}</p>
+          </div>
+          <p class="card-main">{{ currentCard.text_2 }}</p>
+          <div class="card-footer"></div>
+        </div>
       </div>
-    </div>
 
-    <button
-      class="nav-arrow right-arrow"
-      @click="nextCard"
-      :disabled="currentIndex === filteredCards.length - 1"
-    >
-      &#9654;
-    </button>
+      <button
+        class="nav-arrow right-arrow"
+        @click="nextCard"
+        :disabled="currentIndex === filteredCards.length - 1"
+      >
+        &#9654;
+      </button>
 
-    <div v-if="currentCard">
-      <p>
-        You have viewed this card {{ currentCard.times_practiced }} times (last viewed on
-        {{ currentCard.date_last_practiced }})!
-      </p>
-      <h4>
-        This card is currently on stack: <strong>{{ currentCard.status }}</strong
-        >.
-      </h4>
-    </div>
-    <!-- Status Update Radio Buttons -->
-    <div class="status-update">
-      <h4>Move card to stack</h4>
-      <label>
-        <input
-          type="radio"
-          v-model="newStatus"
-          value="new"
-          @change="updateCardStatus(currentCard)"
-        />
-        New
-      </label>
-      <label>
-        <input
-          type="radio"
-          v-model="newStatus"
-          value="review needed"
-          @change="updateCardStatus(currentCard)"
-        />
-        Review Needed
-      </label>
-      <label>
-        <input
-          type="radio"
-          v-model="newStatus"
-          value="confident"
-          @change="updateCardStatus(currentCard)"
-        />
-        Confident
-      </label>
-      <label>
-        <input
-          type="radio"
-          v-model="newStatus"
-          value="archived"
-          @change="updateCardStatus(currentCard)"
-        />
-        Archived
-      </label>
-    </div>
+      <div v-if="currentCard">
+        <p>
+          You have viewed this card {{ currentCard.times_practiced }} times (last viewed on
+          {{ currentCard.date_last_practiced }})!
+        </p>
+        <h4>
+          This card is currently on stack: <strong>{{ currentCard.status }}</strong
+          >.
+        </h4>
+      </div>
+      <!-- Status Update Radio Buttons -->
+      <div class="status-update">
+        <h4>Move card to stack</h4>
+        <label>
+          <input
+            type="radio"
+            v-model="newStatus"
+            value="new"
+            @change="updateCardStatus(currentCard)"
+          />
+          New
+        </label>
+        <label>
+          <input
+            type="radio"
+            v-model="newStatus"
+            value="review needed"
+            @change="updateCardStatus(currentCard)"
+          />
+          Review Needed
+        </label>
+        <label>
+          <input
+            type="radio"
+            v-model="newStatus"
+            value="confident"
+            @change="updateCardStatus(currentCard)"
+          />
+          Confident
+        </label>
+        <label>
+          <input
+            type="radio"
+            v-model="newStatus"
+            value="archived"
+            @change="updateCardStatus(currentCard)"
+          />
+          Archived
+        </label>
+      </div>
 
-    <!-- Filter Dropdown -->
-    <div class="filter-section">
-      <label for="filter">Select stack:</label>
-      <select id="filter" v-model="selectedFilter" @change="applyFilter">
-        <option value="all">All</option>
-        <option value="new">New</option>
-        <option value="review needed">Review Needed</option>
-        <option value="confident">Confident</option>
-        <option value="archived">Archived</option>
-      </select>
-    </div>
-
+      <!-- Filter Dropdown -->
+      <div class="filter-section">
+        <label for="filter">Select stack:</label>
+        <select id="filter" v-model="selectedFilter" @change="applyFilter">
+          <option value="all">All</option>
+          <option value="new">New</option>
+          <option value="review needed">Review Needed</option>
+          <option value="confident">Confident</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+    </main>
     <!-- Footer -->
     <footer>
       <FooterComponent msg="Coding Bootcamps Europe" />
@@ -408,6 +408,23 @@ export default {
 </script>
 
 <style scoped>
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Full height of the viewport */
+}
+
+main {
+  flex: 1; /* Make the main content grow to fill available space */
+}
+
+footer {
+  background-color: var(--vibrant-purple); /* Background color for the footer */
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
 .dropdown-container {
   margin: 0; /* Abstand oben entfernt */
 }
